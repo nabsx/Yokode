@@ -86,12 +86,13 @@
 
                 <!-- Content -->
                 <div class="md:col-span-2">
-                    <label for="content" class="block text-sm font-medium text-gray-700 mb-2">Content (HTML allowed)</label>
+                    <label for="content" class="block text-sm font-medium text-gray-700 mb-2">Content (HTML allowed) *</label>
                     <textarea 
                         id="content" 
                         name="content"
                         rows="8"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('content') border-red-500 @enderror font-mono"
+                        required
                     >{{ old('content', $lesson->content) }}</textarea>
                     @error('content')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>

@@ -59,12 +59,12 @@
                             </td>
                             <td class="px-6 py-4">
                                 <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded-full">
-                                    {{ $lesson->progresses_count }}
+                                    {{ $lesson->user_progresses_count ?? 0 }}
                                 </span>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="w-full bg-gray-200 rounded-full h-2">
-                                    <div class="bg-blue-600 h-2 rounded-full" style="width: {{ min(100, ($lesson->progresses_count / 50) * 100) }}%"></div>
+                                    <div class="bg-blue-600 h-2 rounded-full" style="width: {{ min(100, (($lesson->user_progresses_count ?? 0) / 50) * 100) }}%"></div>
                                 </div>
                             </td>
                         </tr>

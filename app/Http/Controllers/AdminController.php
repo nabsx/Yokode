@@ -193,11 +193,18 @@ class AdminController extends Controller
             'description' => 'required|string',
             'category_id' => 'required|exists:categories,id',
             'order' => 'nullable|integer',
-            'content' => 'nullable|string',
+            'content' => 'required|string',
             'difficulty' => 'nullable|in:easy,medium,hard',
         ]);
 
-        Lesson::create($validated);
+        // Map validated data to model fields
+        $lessonData = [
+            'title' => $validated['title'],
+            'content' => $validated['content'],
+            'order_number' => $validated['order'] ?? 0,
+        ];
+
+        Lesson::create($lessonData);
 
         return redirect()->route('admin.lessons.index')->with('success', 'Lesson created successfully.');
     }
@@ -221,11 +228,18 @@ class AdminController extends Controller
             'description' => 'required|string',
             'category_id' => 'required|exists:categories,id',
             'order' => 'nullable|integer',
-            'content' => 'nullable|string',
+            'content' => 'required|string',
             'difficulty' => 'nullable|in:easy,medium,hard',
         ]);
 
-        $lesson->update($validated);
+        // Map validated data to model fields
+        $lessonData = [
+            'title' => $validated['title'],
+            'content' => $validated['content'],
+            'order_number' => $validated['order'] ?? 0,
+        ];
+
+        $lesson->update($lessonData);
 
         return redirect()->route('admin.lessons.index')->with('success', 'Lesson updated successfully.');
     }
@@ -268,6 +282,9 @@ class AdminController extends Controller
             'order' => 'nullable|integer',
         ]);
 
+        // Generate slug from name
+        $validated['slug'] = \Illuminate\Support\Str::slug($validated['name']);
+
         Category::create($validated);
 
         return redirect()->route('admin.categories.index')->with('success', 'Category created successfully.');
@@ -292,6 +309,9 @@ class AdminController extends Controller
             'icon' => 'nullable|string',
             'order' => 'nullable|integer',
         ]);
+
+        // Generate slug from name
+        $validated['slug'] = \Illuminate\Support\Str::slug($validated['name']);
 
         $category->update($validated);
 
@@ -445,8 +465,8 @@ class AdminController extends Controller
         ];
 
         // Top lessons
-        $topLessons = Lesson::withCount('progresses')
-            ->orderBy('progresses_count', 'desc')
+        $topLessons = Lesson::withCount('userProgresses')
+            ->orderBy('user_progresses_count', 'desc')
             ->limit(10)
             ->get();
 

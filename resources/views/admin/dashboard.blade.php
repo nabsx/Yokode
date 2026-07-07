@@ -108,8 +108,7 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <p class="font-bold text-gray-800">Lv. {{ $user->level }}</p>
-                            <p class="text-sm text-gray-500">{{ $user->total_exp }} XP</p>
+                            <p class="text-sm text-gray-500">{{ number_format($user->total_exp) }} XP</p>
                         </div>
                     </a>
                 @endforeach

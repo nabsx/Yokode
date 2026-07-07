@@ -60,7 +60,6 @@
                     @error('total_exp')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
-                    <p class="text-sm text-gray-500 mt-1">Current Level: {{ $user->level }}</p>
                 </div>
 
                 <!-- Coins -->

@@ -56,11 +56,6 @@
                                 <p class="font-medium text-gray-800">{{ $user->name }}</p>
                             </td>
                             <td class="px-6 py-4 text-gray-600">{{ $user->email }}</td>
-                            <td class="px-6 py-4">
-                                <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded-full">
-                                    Level {{ $user->level }}
-                                </span>
-                            </td>
                             <td class="px-6 py-4 text-gray-600">{{ number_format($user->total_exp) }} XP</td>
                             <td class="px-6 py-4">
                                 @if($user->is_premium)

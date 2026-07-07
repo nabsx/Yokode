@@ -30,7 +30,7 @@ class AdminController extends Controller
 
         // Top users by exp
         $topUsers = User::where('role', 'user')
-            ->select('id', 'name', 'email', 'total_exp', 'level', 'is_premium')
+            ->select('id', 'name', 'email', 'total_exp', 'is_premium')
             ->orderBy('total_exp', 'desc')
             ->limit(10)
             ->get();
@@ -91,7 +91,6 @@ class AdminController extends Controller
 
         $stats = [
             'total_exp' => $user->total_exp,
-            'level' => $user->level,
             'lessons_completed' => $user->progresses()->where('completed', true)->count(),
             'quizzes_answered' => $user->answers()->count(),
             'achievements' => $user->achievements()->count(),

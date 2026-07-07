@@ -17,10 +17,6 @@
                 </div>
 
                 <div class="space-y-3 mb-6">
-                    <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                        <span class="text-gray-700 font-medium">Level</span>
-                        <span class="text-blue-600 font-bold text-lg">{{ $stats['level'] }}</span>
-                    </div>
                     <div class="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
                         <span class="text-gray-700 font-medium">Total XP</span>
                         <span class="text-orange-600 font-bold">{{ number_format($stats['total_exp']) }}</span>

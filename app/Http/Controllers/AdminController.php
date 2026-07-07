@@ -201,6 +201,7 @@ class AdminController extends Controller
         $lessonData = [
             'title' => $validated['title'],
             'content' => $validated['content'],
+            'category_id' => $validated['category_id'],
             'order_number' => $validated['order'] ?? 0,
         ];
 
@@ -236,6 +237,7 @@ class AdminController extends Controller
         $lessonData = [
             'title' => $validated['title'],
             'content' => $validated['content'],
+            'category_id' => $validated['category_id'],
             'order_number' => $validated['order'] ?? 0,
         ];
 

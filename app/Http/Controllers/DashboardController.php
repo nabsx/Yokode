@@ -16,16 +16,18 @@ class DashboardController extends Controller
         $user = Auth::user();
         
         // ========== AMBIL SEMUA KATEGORI DENGAN LESSONS ==========
-        $categories = Category::where('is_active', true)
-            ->orderBy('order')
+        // Get all categories (active or not) to ensure newly created ones show up immediately
+        $categories = Category::orderBy('order')
             ->with(['lessons' => function ($query) {
-                $query->orderBy('order_number');
+                $query->orderBy('order_number')->get();
             }])
             ->get();
         
         // ========== AMBIL COMPLETED LESSONS ==========
+        // Use fresh query to ensure latest data without cache
         $completedLessons = UserProgress::where('user_id', $user->id)
             ->where('completed', true)
+            ->get()
             ->pluck('lesson_id')
             ->toArray();
         

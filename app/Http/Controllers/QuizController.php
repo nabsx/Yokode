@@ -13,9 +13,9 @@ class QuizController extends Controller
     {
         $quiz = Quiz::findOrFail($id);
         $user = Auth::user();
-        $answer = $request->input('answer');
+        $answer = (int)$request->input('answer'); // Cast to int for proper comparison
         
-        $isCorrect = ($quiz->correct_answer === $answer);
+        $isCorrect = ((int)$quiz->correct_answer === $answer);
         
         // HEARTS SYSTEM: Jika salah, kurangi heart
         if (!$isCorrect) {

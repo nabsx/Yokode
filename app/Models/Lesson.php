@@ -12,6 +12,7 @@ class Lesson extends Model
     protected $fillable = [
         'title',
         'content',
+        'category_id',
         'exp_reward',
         'is_premium',
         'order_number',
@@ -20,6 +21,14 @@ class Lesson extends Model
     protected $casts = [
         'is_premium' => 'boolean',
     ];
+
+    /**
+     * Relasi ke category
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 
     /**
      * Relasi ke quiz (satu lesson punya banyak quiz)

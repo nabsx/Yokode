@@ -60,3 +60,48 @@ Route::post('/shop/{id}/buy', [App\Http\Controllers\ShopController::class, 'buy'
 Route::get('/shop/inventory', [App\Http\Controllers\ShopController::class, 'inventory'])->name('shop.inventory');
 Route::post('/shop/inventory/{id}/use', [App\Http\Controllers\ShopController::class, 'useItem'])->name('shop.use');
 });
+
+// Admin routes (harus login dan admin role)
+Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [App\Http\Controllers\AdminController::class, 'dashboard'])->name('dashboard');
+
+    // User Management
+    Route::get('/users', [App\Http\Controllers\AdminController::class, 'usersIndex'])->name('users.index');
+    Route::get('/users/{user}', [App\Http\Controllers\AdminController::class, 'usersShow'])->name('users.show');
+    Route::get('/users/{user}/edit', [App\Http\Controllers\AdminController::class, 'usersEdit'])->name('users.edit');
+    Route::put('/users/{user}', [App\Http\Controllers\AdminController::class, 'usersUpdate'])->name('users.update');
+    Route::delete('/users/{user}', [App\Http\Controllers\AdminController::class, 'usersDestroy'])->name('users.destroy');
+
+    // Lesson/Module Management
+    Route::get('/lessons', [App\Http\Controllers\AdminController::class, 'lessonsIndex'])->name('lessons.index');
+    Route::get('/lessons/create', [App\Http\Controllers\AdminController::class, 'lessonsCreate'])->name('lessons.create');
+    Route::post('/lessons', [App\Http\Controllers\AdminController::class, 'lessonsStore'])->name('lessons.store');
+    Route::get('/lessons/{lesson}/edit', [App\Http\Controllers\AdminController::class, 'lessonsEdit'])->name('lessons.edit');
+    Route::put('/lessons/{lesson}', [App\Http\Controllers\AdminController::class, 'lessonsUpdate'])->name('lessons.update');
+    Route::delete('/lessons/{lesson}', [App\Http\Controllers\AdminController::class, 'lessonsDestroy'])->name('lessons.destroy');
+
+    // Category Management
+    Route::get('/categories', [App\Http\Controllers\AdminController::class, 'categoriesIndex'])->name('categories.index');
+    Route::get('/categories/create', [App\Http\Controllers\AdminController::class, 'categoriesCreate'])->name('categories.create');
+    Route::post('/categories', [App\Http\Controllers\AdminController::class, 'categoriesStore'])->name('categories.store');
+    Route::get('/categories/{category}/edit', [App\Http\Controllers\AdminController::class, 'categoriesEdit'])->name('categories.edit');
+    Route::put('/categories/{category}', [App\Http\Controllers\AdminController::class, 'categoriesUpdate'])->name('categories.update');
+    Route::delete('/categories/{category}', [App\Http\Controllers\AdminController::class, 'categoriesDestroy'])->name('categories.destroy');
+
+    // Quiz Management
+    Route::get('/quizzes', [App\Http\Controllers\AdminController::class, 'quizzesIndex'])->name('quizzes.index');
+    Route::get('/quizzes/create', [App\Http\Controllers\AdminController::class, 'quizzesCreate'])->name('quizzes.create');
+    Route::post('/quizzes', [App\Http\Controllers\AdminController::class, 'quizzesStore'])->name('quizzes.store');
+    Route::get('/quizzes/{quiz}/edit', [App\Http\Controllers\AdminController::class, 'quizzesEdit'])->name('quizzes.edit');
+    Route::put('/quizzes/{quiz}', [App\Http\Controllers\AdminController::class, 'quizzesUpdate'])->name('quizzes.update');
+    Route::delete('/quizzes/{quiz}', [App\Http\Controllers\AdminController::class, 'quizzesDestroy'])->name('quizzes.destroy');
+
+    // Gamification Management
+    Route::get('/achievements', [App\Http\Controllers\AdminController::class, 'achievementsIndex'])->name('achievements.index');
+    Route::get('/shop-items', [App\Http\Controllers\AdminController::class, 'shopItemsIndex'])->name('shop.index');
+    Route::get('/daily-quests', [App\Http\Controllers\AdminController::class, 'dailyQuestsIndex'])->name('quests.index');
+
+    // Analytics & Reports
+    Route::get('/analytics', [App\Http\Controllers\AdminController::class, 'analytics'])->name('analytics');
+});

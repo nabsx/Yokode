@@ -19,6 +19,8 @@ class Quiz extends Model
 
     protected $casts = [
         'options' => 'array', // otomatis cast JSON ke array
+        'correct_answer' => 'integer', // ensure correct_answer is always int
+        'points' => 'integer',
     ];
 
     /**

@@ -91,6 +91,11 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
 
     // Quiz Management
     Route::get('/quizzes', [App\Http\Controllers\AdminController::class, 'quizzesIndex'])->name('quizzes.index');
+    Route::get('/quizzes/create', [App\Http\Controllers\AdminController::class, 'quizzesCreate'])->name('quizzes.create');
+    Route::post('/quizzes', [App\Http\Controllers\AdminController::class, 'quizzesStore'])->name('quizzes.store');
+    Route::get('/quizzes/{quiz}/edit', [App\Http\Controllers\AdminController::class, 'quizzesEdit'])->name('quizzes.edit');
+    Route::put('/quizzes/{quiz}', [App\Http\Controllers\AdminController::class, 'quizzesUpdate'])->name('quizzes.update');
+    Route::delete('/quizzes/{quiz}', [App\Http\Controllers\AdminController::class, 'quizzesDestroy'])->name('quizzes.destroy');
 
     // Gamification Management
     Route::get('/achievements', [App\Http\Controllers\AdminController::class, 'achievementsIndex'])->name('achievements.index');

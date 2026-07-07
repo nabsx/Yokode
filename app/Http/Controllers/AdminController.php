@@ -312,16 +312,90 @@ class AdminController extends Controller
      */
     public function quizzesIndex(Request $request)
     {
-        $query = Quiz::query();
+        $query = Quiz::with('lesson');
 
         if ($request->filled('search')) {
             $search = $request->get('search');
-            $query->where('title', 'like', "%$search%");
+            $query->where('question', 'like', "%$search%")
+                  ->orWhereHas('lesson', function ($q) use ($search) {
+                      $q->where('title', 'like', "%$search%");
+                  });
         }
 
         $quizzes = $query->orderBy('created_at', 'desc')->paginate(20);
 
         return view('admin.quizzes.index', compact('quizzes'));
+    }
+
+    /**
+     * Quiz Management - Create
+     */
+    public function quizzesCreate()
+    {
+        $lessons = Lesson::orderBy('title')->get();
+        return view('admin.quizzes.create', compact('lessons'));
+    }
+
+    /**
+     * Quiz Management - Store
+     */
+    public function quizzesStore(Request $request)
+    {
+        $validated = $request->validate([
+            'lesson_id' => 'required|exists:lessons,id',
+            'question' => 'required|string',
+            'options' => 'required|array|min:2|max:4',
+            'options.*' => 'required|string',
+            'correct_answer' => 'required|string|in:0,1,2,3',
+            'points' => 'required|integer|min:1|max:1000',
+        ]);
+
+        $validated['options'] = array_values($validated['options']); // Ensure array indexing
+        $validated['correct_answer'] = (int)$validated['correct_answer'];
+
+        Quiz::create($validated);
+
+        return redirect()->route('admin.quizzes.index')->with('success', 'Quiz created successfully.');
+    }
+
+    /**
+     * Quiz Management - Edit
+     */
+    public function quizzesEdit(Quiz $quiz)
+    {
+        $lessons = Lesson::orderBy('title')->get();
+        return view('admin.quizzes.edit', compact('quiz', 'lessons'));
+    }
+
+    /**
+     * Quiz Management - Update
+     */
+    public function quizzesUpdate(Request $request, Quiz $quiz)
+    {
+        $validated = $request->validate([
+            'lesson_id' => 'required|exists:lessons,id',
+            'question' => 'required|string',
+            'options' => 'required|array|min:2|max:4',
+            'options.*' => 'required|string',
+            'correct_answer' => 'required|string|in:0,1,2,3',
+            'points' => 'required|integer|min:1|max:1000',
+        ]);
+
+        $validated['options'] = array_values($validated['options']);
+        $validated['correct_answer'] = (int)$validated['correct_answer'];
+
+        $quiz->update($validated);
+
+        return redirect()->route('admin.quizzes.index')->with('success', 'Quiz updated successfully.');
+    }
+
+    /**
+     * Quiz Management - Delete
+     */
+    public function quizzesDestroy(Quiz $quiz)
+    {
+        $quiz->delete();
+        return redirect()->route('admin.quizzes.index')->with('success', 'Quiz deleted successfully.');
     }
 
     /**

@@ -6,18 +6,20 @@ namespace App\Models;
 use App\Traits\GamificationTrait;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, GamificationTrait;
+    use HasFactory, Notifiable, GamificationTrait, SoftDeletes;
 
     protected $fillable = [
         'name',
         'email',
         'password',
+        'role',
         'total_exp',
         'is_premium',
         'premium_expires_at',

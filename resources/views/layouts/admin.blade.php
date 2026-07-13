@@ -89,9 +89,14 @@
                         <span class="sidebar-text">Shop Items</span>
                     </a>
 
-                    <a href="{{ route('admin.quests.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->routeIs('admin.quests.*') ? 'bg-blue-700' : 'hover:bg-blue-700 transition' }}">
+                    <a href="{{ route('admin.quests.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->routeIs('admin.quests.index') ? 'bg-blue-700' : 'hover:bg-blue-700 transition' }}">
                         <i class="fas fa-list-check w-5"></i>
                         <span class="sidebar-text">Daily Quests</span>
+                    </a>
+
+                    <a href="{{ route('admin.quest-templates.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->routeIs('admin.quest-templates.*') ? 'bg-blue-700' : 'hover:bg-blue-700 transition' }}">
+                        <i class="fas fa-calendar-days w-5"></i>
+                        <span class="sidebar-text">Quest Templates</span>
                     </a>
 
                     <div class="pt-4 pb-2">

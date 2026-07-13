@@ -223,25 +223,25 @@
                     }
                 });
                 
+                console.log("[v0] Response status:", response.status);
                 const data = await response.json();
+                console.log("[v0] Response data:", data);
                 
                 if (data.success) {
-                    alert(data.message);
+                    console.log("[v0] Lesson completed successfully");
                     
-                    // Update tampilan
-                    const container = document.querySelector('.bg-white');
-                    container.innerHTML = `
-                        <div class="text-center p-6">
-                            <span class="text-green-600 text-4xl">🎉</span>
-                            <h2 class="text-xl font-bold mt-2">Modul Selesai!</h2>
-                            <p class="text-gray-600 mt-2">+${data.exp_gained} EXP</p>
-                            <p class="text-blue-600 mt-1">Level ${data.new_level} (${data.total_exp} EXP)</p>
-                            <a href="{{ route('dashboard') }}" class="inline-block mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">← Kembali ke Dashboard</a>
-                        </div>
-                    `;
+                    // Redirect to dashboard after 1 second
+                    setTimeout(function() {
+                        window.location.href = '{{ route("dashboard") }}';
+                    }, 1000);
+                } else {
+                    console.error("[v0] Completion failed:", data.message);
+                    alert('Error: ' + data.message);
+                    btn.disabled = false;
+                    btn.innerHTML = 'Selesaikan Modul & Dapatkan EXP';
                 }
             } catch (error) {
-                console.error('Error:', error);
+                console.error("[v0] Error during completion:", error);
                 alert('Terjadi kesalahan. Silakan coba lagi.');
                 btn.disabled = false;
                 btn.innerHTML = 'Selesaikan Modul & Dapatkan EXP';

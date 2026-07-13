@@ -290,6 +290,9 @@ class AdminController extends Controller
 
         // Generate slug from name
         $validated['slug'] = \Illuminate\Support\Str::slug($validated['name']);
+        
+        // Provide default icon if not provided
+        $validated['icon'] = $validated['icon'] ?? '📚';
 
         Category::create($validated);
 
@@ -318,6 +321,9 @@ class AdminController extends Controller
 
         // Generate slug from name
         $validated['slug'] = \Illuminate\Support\Str::slug($validated['name']);
+        
+        // Provide default icon if not provided
+        $validated['icon'] = $validated['icon'] ?? '📚';
 
         $category->update($validated);
 

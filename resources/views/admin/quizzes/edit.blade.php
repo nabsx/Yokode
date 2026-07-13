@@ -67,13 +67,24 @@
                 @enderror
             </div>
 
-            <!-- Points -->
+            <!-- Points (Dropdown with increments of 10) -->
             <div>
                 <label for="points" class="block text-sm font-semibold text-gray-700 mb-2">Points</label>
-                <input type="number" name="points" id="points" min="1" max="1000" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('points') border-red-500 @enderror" placeholder="Points for correct answer" value="{{ $quiz->points }}" required>
+                <select name="points" id="points" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('points') border-red-500 @enderror" required>
+                    <option value="">-- Select Points --</option>
+                    @php
+                        $pointsMultiples = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150];
+                    @endphp
+                    @foreach($pointsMultiples as $points)
+                        <option value="{{ $points }}" @selected($quiz->points == $points)>
+                            {{ $points }} points ({{ intdiv($points, 10) }} coin)
+                        </option>
+                    @endforeach
+                </select>
                 @error('points')
                     <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                 @enderror
+                <p class="text-xs text-gray-500 mt-2">* Points akan dikonversi menjadi coin (10 points = 1 coin)</p>
             </div>
 
             <!-- Statistics -->

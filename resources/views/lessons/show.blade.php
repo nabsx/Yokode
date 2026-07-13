@@ -154,7 +154,22 @@
 <script>
     // Track jawaban yang sudah dijawab
     let answeredQuizzes = new Set();
-    let totalQuizzes = {{ $quizzes->count() }};
+    
+    // ANTI-CHEAT: Hitung hanya quiz yang bisa dijawab (exclude locked ones)
+    let totalQuizzes = 0;
+    let lockedQuizzes = new Set();
+    document.querySelectorAll('.quiz-item').forEach(function(item) {
+        const quizId = item.dataset.quizId;
+        // Cek apakah ada warning "TERKUNCI" di item ini
+        const isLocked = item.querySelector('.bg-red-50') !== null || 
+                         item.querySelector('[class*="TERKUNCI"]') !== null;
+        if (isLocked) {
+            lockedQuizzes.add(quizId);
+        } else {
+            totalQuizzes++;
+        }
+    });
+    
     let currentHearts = {{ Auth::user()->hearts->current_hearts }};
     
     // Event listener untuk radio button
@@ -224,12 +239,20 @@
                 // Track bahwa quiz ini sudah dijawab (benar atau salah)
                 answeredQuizzes.add(quizId);
                 
-                // Cek apakah semua quiz sudah dijawab
-                if (answeredQuizzes.size === totalQuizzes) {
+                // ANTI-CHEAT: Hanya check quiz yang bukan locked
+                let requiredQuizzes = totalQuizzes;
+                
+                // Cek apakah semua quiz (yang bukan locked) sudah dijawab
+                if (answeredQuizzes.size === requiredQuizzes) {
                     document.getElementById('complete-lesson-btn').disabled = false;
-                    document.getElementById('quiz-status').innerHTML = '✅ Semua kuis sudah dijawab!';
+                    if (lockedQuizzes.size > 0) {
+                        document.getElementById('quiz-status').innerHTML = '✅ Semua kuis sudah dijawab! (' + lockedQuizzes.size + ' soal terkunci)';
+                    } else {
+                        document.getElementById('quiz-status').innerHTML = '✅ Semua kuis sudah dijawab!';
+                    }
                 } else {
-                    document.getElementById('quiz-status').innerHTML = '📊 Progress: ' + answeredQuizzes.size + ' / ' + totalQuizzes + ' kuis dijawab';
+                    let remaining = requiredQuizzes - answeredQuizzes.size;
+                    document.getElementById('quiz-status').innerHTML = '📊 Progress: ' + answeredQuizzes.size + ' / ' + requiredQuizzes + ' kuis dijawab (' + remaining + ' tersisa)';
                 }
                 
             } catch (error) {

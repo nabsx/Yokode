@@ -485,6 +485,81 @@ class AdminController extends Controller
     }
 
     /**
+     * Daily Quest Templates - View all templates by day of week
+     */
+    public function dailyQuestTemplates()
+    {
+        $templates = DailyQuest::getWeeklyTemplates();
+        return view('admin.quests.templates', compact('templates'));
+    }
+
+    /**
+     * Daily Quest Templates - Edit a specific day's template
+     */
+    public function dailyQuestTemplateEdit($dayOfWeek)
+    {
+        if ($dayOfWeek < 0 || $dayOfWeek > 6) {
+            return redirect()->route('admin.quests.templates')->with('error', 'Invalid day of week.');
+        }
+
+        $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        $dayName = $days[$dayOfWeek];
+        
+        $quest = DailyQuest::getByDayOfWeek($dayOfWeek);
+        
+        $types = ['complete_lesson', 'answer_quiz', 'gain_exp', 'login', 'perfect_quiz'];
+
+        return view('admin.quests.template-edit', compact('quest', 'dayOfWeek', 'dayName', 'types'));
+    }
+
+    /**
+     * Daily Quest Templates - Update a specific day's template
+     */
+    public function dailyQuestTemplateUpdate(Request $request, $dayOfWeek)
+    {
+        if ($dayOfWeek < 0 || $dayOfWeek > 6) {
+            return redirect()->route('admin.quests.templates')->with('error', 'Invalid day of week.');
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string|max:500',
+            'type' => 'required|in:complete_lesson,answer_quiz,gain_exp,login,perfect_quiz',
+            'target' => 'required|integer|min:1',
+            'reward_exp' => 'required|integer|min:0',
+            'reward_coins' => 'nullable|integer|min:0',
+        ]);
+
+        $quest = DailyQuest::getByDayOfWeek($dayOfWeek);
+
+        if ($quest) {
+            // Update existing template
+            $quest->update([
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'type' => $validated['type'],
+                'target' => $validated['target'],
+                'reward_exp' => $validated['reward_exp'],
+                'reward_coins' => $validated['reward_coins'] ?? 0,
+            ]);
+        } else {
+            // Create new template
+            DailyQuest::create([
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'type' => $validated['type'],
+                'target' => $validated['target'],
+                'reward_exp' => $validated['reward_exp'],
+                'reward_coins' => $validated['reward_coins'] ?? 0,
+                'day_of_week' => $dayOfWeek,
+                'date' => now()->toDateString(), // Default to today
+            ]);
+        }
+
+        return redirect()->route('admin.quests.templates')->with('success', 'Daily quest template updated successfully.');
+    }
+
+    /**
      * Statistics & Reports
      */
     public function analytics()

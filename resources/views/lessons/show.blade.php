@@ -16,9 +16,14 @@
                 @endfor
             </div>
         </div>
-        <div class="flex items-center gap-2">
-            <span class="text-sm font-medium">🔥 Streak:</span>
-            <span class="text-orange-600 font-bold">{{ Auth::user()->streak->current_streak }} hari</span>
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+                <span class="text-sm font-medium">🔥 Streak:</span>
+                <span class="text-orange-600 font-bold">{{ Auth::user()->streak->current_streak }} hari</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-sm font-medium" id="coins-display">💰 {{ Auth::user()->coins }} Coin</span>
+            </div>
         </div>
     </div>
 </div>
@@ -234,6 +239,11 @@
                 currentHearts = data.hearts;
                 updateHeartsDisplay();
                 
+                // Update coins display if available
+                if (data.total_coins !== undefined) {
+                    updateCoinsDisplay(data.total_coins);
+                }
+                
                 // ANTI-CHEAT: Handle locked quiz
                 if (data.is_locked) {
                     feedbackDiv.innerHTML = data.message;
@@ -249,6 +259,10 @@
                 
                 if (data.is_correct) {
                     feedbackDiv.classList.add('text-green-600');
+                    // COIN CONVERSION: Tampilkan coins yang diperoleh
+                    if (data.coins_earned > 0) {
+                        feedbackDiv.innerHTML = feedbackDiv.innerHTML + '<div class="text-sm text-yellow-600 font-medium mt-2">💰 +' + data.coins_earned + ' coin (dari ' + data.points + ' poin)</div>';
+                    }
                     if (data.reason) {
                         feedbackDiv.innerHTML = feedbackDiv.innerHTML + '<div class="text-sm text-gray-600 mt-1">Penjelasan: ' + data.reason + '</div>';
                     }
@@ -291,6 +305,14 @@
                 html += '<span class="text-gray-300">🖤</span>';
             }
             heartsDisplay.innerHTML = html;
+        }
+    }
+    
+    // Function to update coins display
+    function updateCoinsDisplay(totalCoins) {
+        const coinsDisplay = document.getElementById('coins-display');
+        if (coinsDisplay) {
+            coinsDisplay.innerHTML = '💰 ' + totalCoins + ' Coin';
         }
     }
     

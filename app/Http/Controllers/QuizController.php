@@ -60,14 +60,22 @@ class QuizController extends Controller
             ]
         );
         
-        // Jika benar, update quest progress
+        // Jika benar, update quest progress dan convert poin ke coin
+        $coinsEarned = 0;
         if ($isCorrect) {
             $user->updateQuestProgress('answer_quiz', 1);
+            
+            // COIN CONVERSION: 10 poin = 1 coin
+            $coinsEarned = intdiv($quiz->points, 10);
+            if ($coinsEarned > 0) {
+                $user->addCoins($coinsEarned);
+            }
         }
         
         $options = $quiz->options;
         $correctAnswerText = $options[$quiz->correct_answer] ?? $quiz->correct_answer;
         $hearts = $user->hearts->current_hearts;
+        $coins = $user->coins;
         
         return response()->json([
             'success' => true,
@@ -76,9 +84,11 @@ class QuizController extends Controller
             'correct_answer_text' => $correctAnswerText,
             'reason' => $quiz->reason,
             'points' => $isCorrect ? $quiz->points : 0,
+            'coins_earned' => $coinsEarned,
+            'total_coins' => $coins,
             'hearts' => $hearts,
             'message' => $isCorrect 
-                ? '✅ Jawaban benar! +' . $quiz->points . ' poin | ❤️ ' . $hearts 
+                ? '✅ Jawaban benar! +' . $quiz->points . ' poin (+' . $coinsEarned . ' coin) | ❤️ ' . $hearts 
                 : '❌ Jawaban salah. ❤️ tersisa: ' . $hearts
         ]);
     }

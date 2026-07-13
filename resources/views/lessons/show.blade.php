@@ -50,7 +50,7 @@
                     @foreach($quizzesWithStatus as $index => $quiz)
                         {{-- Check if quiz is locked (answered wrong and viewed reason) --}}
                         @if($quiz['status'] === 'locked')
-                            <div class="quiz-item mb-6 p-4 bg-red-50 rounded-lg border-2 border-red-300" data-quiz-id="{{ $quiz['id'] }}" data-correct="{{ $quiz['correct_answer'] }}">
+                            <div class="quiz-item mb-6 p-4 bg-red-50 rounded-lg border-2 border-red-300" data-quiz-id="{{ $quiz['id'] }}" data-correct="{{ $quiz['correct_answer'] }}" data-answered="true">
                                 <div class="flex items-center justify-between mb-3">
                                     <p class="font-medium">{{ $index + 1 }}. {{ $quiz['question'] }}</p>
                                     <span class="bg-red-200 text-red-700 px-3 py-1 rounded-full text-xs font-medium">🔒 TERKUNCI</span>
@@ -88,7 +88,7 @@
                                 </div>
                             </div>
                         @else
-                            <div class="quiz-item mb-6 p-4 bg-gray-50 rounded-lg" data-quiz-id="{{ $quiz['id'] }}" data-correct="{{ $quiz['correct_answer'] }}">
+                            <div class="quiz-item mb-6 p-4 bg-gray-50 rounded-lg" data-quiz-id="{{ $quiz['id'] }}" data-correct="{{ $quiz['correct_answer'] }}" data-answered="{{ $quiz['user_answer'] ? 'true' : 'false' }}">
                                 <p class="font-medium mb-3">{{ $index + 1 }}. {{ $quiz['question'] }}</p>
                                 <div class="space-y-2">
                                     @php
@@ -165,12 +165,36 @@
                          item.querySelector('[class*="TERKUNCI"]') !== null;
         if (isLocked) {
             lockedQuizzes.add(quizId);
+            // Locked quiz yang sudah dijawab juga ditambah ke answered set
+            answeredQuizzes.add(quizId);
         } else {
             totalQuizzes++;
+            // Jika quiz sudah dijawab (dari backend), tambahkan ke answered set
+            if (item.dataset.answered === 'true') {
+                answeredQuizzes.add(quizId);
+            }
         }
     });
     
     let currentHearts = {{ Auth::user()->hearts->current_hearts }};
+    
+    // Check button enable status setiap kali page load
+    function updateCompleteButtonStatus() {
+        if (answeredQuizzes.size === totalQuizzes && totalQuizzes > 0) {
+            document.getElementById('complete-lesson-btn').disabled = false;
+            if (lockedQuizzes.size > 0) {
+                document.getElementById('quiz-status').innerHTML = '✅ Semua kuis sudah dijawab! (' + lockedQuizzes.size + ' soal terkunci)';
+            } else {
+                document.getElementById('quiz-status').innerHTML = '✅ Semua kuis sudah dijawab!';
+            }
+        } else {
+            let remaining = totalQuizzes - answeredQuizzes.size;
+            document.getElementById('quiz-status').innerHTML = '📊 Progress: ' + answeredQuizzes.size + ' / ' + totalQuizzes + ' kuis dijawab (' + remaining + ' tersisa)';
+        }
+    }
+    
+    // Call on page load
+    document.addEventListener('DOMContentLoaded', updateCompleteButtonStatus);
     
     // Event listener untuk radio button
     document.querySelectorAll('.quiz-radio').forEach(function(radio) {
@@ -239,21 +263,8 @@
                 // Track bahwa quiz ini sudah dijawab (benar atau salah)
                 answeredQuizzes.add(quizId);
                 
-                // ANTI-CHEAT: Hanya check quiz yang bukan locked
-                let requiredQuizzes = totalQuizzes;
-                
-                // Cek apakah semua quiz (yang bukan locked) sudah dijawab
-                if (answeredQuizzes.size === requiredQuizzes) {
-                    document.getElementById('complete-lesson-btn').disabled = false;
-                    if (lockedQuizzes.size > 0) {
-                        document.getElementById('quiz-status').innerHTML = '✅ Semua kuis sudah dijawab! (' + lockedQuizzes.size + ' soal terkunci)';
-                    } else {
-                        document.getElementById('quiz-status').innerHTML = '✅ Semua kuis sudah dijawab!';
-                    }
-                } else {
-                    let remaining = requiredQuizzes - answeredQuizzes.size;
-                    document.getElementById('quiz-status').innerHTML = '📊 Progress: ' + answeredQuizzes.size + ' / ' + requiredQuizzes + ' kuis dijawab (' + remaining + ' tersisa)';
-                }
+                // Update button status
+                updateCompleteButtonStatus();
                 
             } catch (error) {
                 console.error('Error:', error);

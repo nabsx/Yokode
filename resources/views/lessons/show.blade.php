@@ -58,7 +58,7 @@
                                     <label class="flex items-center p-2 rounded cursor-pointer hover:bg-gray-100">
                                         <input type="radio" 
                                                name="quiz_{{ $quiz->id }}" 
-                                               value="{{ $labels[$key] }}" 
+                                               value="{{ $key }}" 
                                                class="quiz-radio mr-3"
                                                data-quiz-id="{{ $quiz->id }}">
                                         <span class="font-medium mr-2">{{ $labels[$key] }}.</span>

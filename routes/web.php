@@ -102,6 +102,12 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     Route::get('/shop-items', [App\Http\Controllers\AdminController::class, 'shopItemsIndex'])->name('shop.index');
     Route::get('/daily-quests', [App\Http\Controllers\AdminController::class, 'dailyQuestsIndex'])->name('quests.index');
 
+    // Daily Quest Templates Management
+    Route::get('/quest-templates', [App\Http\Controllers\AdminController::class, 'questTemplatesIndex'])->name('quest-templates.index');
+    Route::get('/quest-templates/{template}/edit', [App\Http\Controllers\AdminController::class, 'questTemplatesEdit'])->name('quest-templates.edit');
+    Route::put('/quest-templates/{template}', [App\Http\Controllers\AdminController::class, 'questTemplatesUpdate'])->name('quest-templates.update');
+    Route::post('/quest-templates/initialize', [App\Http\Controllers\AdminController::class, 'questTemplatesInitialize'])->name('quest-templates.initialize');
+
     // Analytics & Reports
     Route::get('/analytics', [App\Http\Controllers\AdminController::class, 'analytics'])->name('analytics');
 });

@@ -58,7 +58,7 @@
                                     <label class="flex items-center p-2 rounded cursor-pointer hover:bg-gray-100">
                                         <input type="radio" 
                                                name="quiz_{{ $quiz->id }}" 
-                                               value="{{ $labels[$key] }}" 
+                                               value="{{ $key }}" 
                                                class="quiz-radio mr-3"
                                                data-quiz-id="{{ $quiz->id }}">
                                         <span class="font-medium mr-2">{{ $labels[$key] }}.</span>
@@ -108,10 +108,19 @@
     // Track jawaban yang sudah dijawab
     let answeredQuizzes = new Set();
     let totalQuizzes = {{ $quizzes->count() }};
+    let currentHearts = {{ Auth::user()->hearts->current_hearts }};
     
     // Event listener untuk radio button
     document.querySelectorAll('.quiz-radio').forEach(function(radio) {
         radio.addEventListener('change', async function() {
+            // Cek apakah user masih punya hearts
+            if (currentHearts === 0) {
+                alert('❌ Hearts habis! Tidak bisa menjawab soal. Tunggu recharge atau beli hearts di shop.');
+                // Uncheck radio
+                this.checked = false;
+                return;
+            }
+            
             const quizId = this.dataset.quizId;
             const answer = this.value;
             const quizItem = this.closest('.quiz-item');
@@ -135,16 +144,25 @@
                 
                 const data = await response.json();
                 
+                // Update hearts display
+                currentHearts = data.hearts;
+                updateHeartsDisplay();
+                
                 // Tampilkan feedback
                 feedbackDiv.innerHTML = data.message;
                 feedbackDiv.classList.remove('hidden');
                 
                 if (data.is_correct) {
                     feedbackDiv.classList.add('text-green-600');
+                    if (data.reason) {
+                        feedbackDiv.innerHTML = feedbackDiv.innerHTML + '<div class="text-sm text-gray-600 mt-1">Penjelasan: ' + data.reason + '</div>';
+                    }
                 } else {
                     feedbackDiv.classList.add('text-red-600');
-                    // PERBAIKAN: menggunakan string concatenation biasa
                     feedbackDiv.innerHTML = feedbackDiv.innerHTML + '<div class="text-sm text-gray-600 mt-1">Jawaban benar: ' + data.correct_answer_text + '</div>';
+                    if (data.reason) {
+                        feedbackDiv.innerHTML = feedbackDiv.innerHTML + '<div class="text-sm text-gray-600 mt-1">Penjelasan: ' + data.reason + '</div>';
+                    }
                 }
                 
                 // Track bahwa quiz ini sudah dijawab (benar atau salah)
@@ -163,9 +181,28 @@
                 feedbackDiv.innerHTML = 'Terjadi kesalahan. Silakan coba lagi.';
                 feedbackDiv.classList.remove('hidden');
                 feedbackDiv.classList.add('text-red-600');
+                // Re-enable radio buttons jika error
+                quizItem.querySelectorAll('.quiz-radio').forEach(function(r) {
+                    r.disabled = false;
+                });
             }
         });
     });
+    
+    // Function to update hearts display
+    function updateHeartsDisplay() {
+        const heartsDisplay = document.getElementById('hearts-display');
+        if (heartsDisplay) {
+            let html = '';
+            for (let i = 1; i <= currentHearts; i++) {
+                html += '<span class="text-red-500">❤️</span>';
+            }
+            for (let i = currentHearts + 1; i <= 5; i++) {
+                html += '<span class="text-gray-300">🖤</span>';
+            }
+            heartsDisplay.innerHTML = html;
+        }
+    }
     
     // Complete lesson button
     var completeBtn = document.getElementById('complete-lesson-btn');
@@ -186,25 +223,25 @@
                     }
                 });
                 
+                console.log("[v0] Response status:", response.status);
                 const data = await response.json();
+                console.log("[v0] Response data:", data);
                 
                 if (data.success) {
-                    alert(data.message);
+                    console.log("[v0] Lesson completed successfully");
                     
-                    // Update tampilan
-                    const container = document.querySelector('.bg-white');
-                    container.innerHTML = `
-                        <div class="text-center p-6">
-                            <span class="text-green-600 text-4xl">🎉</span>
-                            <h2 class="text-xl font-bold mt-2">Modul Selesai!</h2>
-                            <p class="text-gray-600 mt-2">+${data.exp_gained} EXP</p>
-                            <p class="text-blue-600 mt-1">Level ${data.new_level} (${data.total_exp} EXP)</p>
-                            <a href="{{ route('dashboard') }}" class="inline-block mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">← Kembali ke Dashboard</a>
-                        </div>
-                    `;
+                    // Redirect to dashboard after 1 second
+                    setTimeout(function() {
+                        window.location.href = '{{ route("dashboard") }}';
+                    }, 1000);
+                } else {
+                    console.error("[v0] Completion failed:", data.message);
+                    alert('Error: ' + data.message);
+                    btn.disabled = false;
+                    btn.innerHTML = 'Selesaikan Modul & Dapatkan EXP';
                 }
             } catch (error) {
-                console.error('Error:', error);
+                console.error("[v0] Error during completion:", error);
                 alert('Terjadi kesalahan. Silakan coba lagi.');
                 btn.disabled = false;
                 btn.innerHTML = 'Selesaikan Modul & Dapatkan EXP';

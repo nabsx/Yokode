@@ -15,6 +15,7 @@ class Quiz extends Model
         'options',
         'correct_answer',
         'points',
+        'reason',
     ];
 
     protected $casts = [

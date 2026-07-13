@@ -96,17 +96,19 @@
                 <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
                     <i class="fas fa-save mr-2"></i>Update Quiz
                 </button>
-                <form action="{{ route('admin.quizzes.destroy', $quiz) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure?');">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition">
-                        <i class="fas fa-trash mr-2"></i>Delete
-                    </button>
-                </form>
                 <a href="{{ route('admin.quizzes.index') }}" class="px-6 py-2 bg-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-400 transition">
                     <i class="fas fa-times mr-2"></i>Cancel
                 </a>
             </div>
+        </form>
+
+        <!-- Delete Form (Outside Update Form) -->
+        <form action="{{ route('admin.quizzes.destroy', $quiz) }}" method="POST" class="mt-6" onsubmit="return confirm('Are you sure you want to delete this quiz?');">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition">
+                <i class="fas fa-trash mr-2"></i>Delete Quiz
+            </button>
         </form>
     </div>
 </div>

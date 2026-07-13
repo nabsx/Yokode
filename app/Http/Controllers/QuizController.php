@@ -55,6 +55,7 @@ class QuizController extends Controller
             'is_correct' => $isCorrect,
             'correct_answer' => $quiz->correct_answer,
             'correct_answer_text' => $correctAnswerText,
+            'reason' => $quiz->reason,
             'points' => $isCorrect ? $quiz->points : 0,
             'hearts' => $hearts,
             'message' => $isCorrect 

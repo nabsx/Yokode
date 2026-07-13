@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class User extends Authenticatable
 {
@@ -112,6 +113,7 @@ class User extends Authenticatable
     {
         $today = now()->toDateString();
         
+        // Check if user already has quests for today
         $exists = UserQuest::where('user_id', $this->id)
             ->where('date', $today)
             ->exists();
@@ -120,17 +122,45 @@ class User extends Authenticatable
             return;
         }
         
+        // Try to get quests from daily_quests table (generated from templates)
         $dailyQuests = DailyQuest::where('date', $today)->get();
         
         if ($dailyQuests->isEmpty()) {
-            $defaultQuests = [
-                ['title' => 'Selesaikan 1 Modul', 'description' => 'Selesaikan 1 modul belajar', 'type' => 'complete_lesson', 'target' => 1, 'reward_exp' => 50, 'reward_coins' => 10, 'date' => $today],
-                ['title' => 'Jawab 5 Kuis', 'description' => 'Jawab 5 pertanyaan kuis', 'type' => 'answer_quiz', 'target' => 5, 'reward_exp' => 30, 'reward_coins' => 5, 'date' => $today],
-                ['title' => 'Dapatkan 100 EXP', 'description' => 'Kumpulkan 100 EXP hari ini', 'type' => 'gain_exp', 'target' => 100, 'reward_exp' => 60, 'reward_coins' => 15, 'date' => $today],
-            ];
+            // If no quests exist for today, create from template
+            $dayOfWeek = now()->dayOfWeek; // 0 = Sunday, 6 = Saturday
+            $template = DailyQuestTemplate::where('day_of_week', $dayOfWeek)->first();
             
-            foreach ($defaultQuests as $quest) {
-                $dailyQuest = DailyQuest::create($quest);
+            if ($template) {
+                // Create DailyQuest from template
+                $dailyQuest = DailyQuest::create([
+                    'title' => $template->title,
+                    'description' => $template->description,
+                    'type' => $template->type,
+                    'target' => $template->target,
+                    'reward_exp' => $template->reward_exp,
+                    'reward_coins' => $template->reward_coins,
+                    'date' => $today,
+                ]);
+                
+                // Assign to current user
+                UserQuest::create([
+                    'user_id' => $this->id,
+                    'daily_quest_id' => $dailyQuest->id,
+                    'date' => $today,
+                    'progress' => 0
+                ]);
+            } else {
+                // Fallback: create default quest if no template exists
+                $dailyQuest = DailyQuest::create([
+                    'title' => 'Login Challenge',
+                    'description' => 'Login untuk mendapatkan reward harian',
+                    'type' => 'login',
+                    'target' => 1,
+                    'reward_exp' => 50,
+                    'reward_coins' => 25,
+                    'date' => $today,
+                ]);
+                
                 UserQuest::create([
                     'user_id' => $this->id,
                     'daily_quest_id' => $dailyQuest->id,
@@ -139,11 +169,13 @@ class User extends Authenticatable
                 ]);
             }
         } else {
+            // Assign existing daily quests to user
             foreach ($dailyQuests as $quest) {
-                UserQuest::create([
+                UserQuest::firstOrCreate([
                     'user_id' => $this->id,
                     'daily_quest_id' => $quest->id,
                     'date' => $today,
+                ], [
                     'progress' => 0
                 ]);
             }

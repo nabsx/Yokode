@@ -108,10 +108,19 @@
     // Track jawaban yang sudah dijawab
     let answeredQuizzes = new Set();
     let totalQuizzes = {{ $quizzes->count() }};
+    let currentHearts = {{ Auth::user()->hearts->current_hearts }};
     
     // Event listener untuk radio button
     document.querySelectorAll('.quiz-radio').forEach(function(radio) {
         radio.addEventListener('change', async function() {
+            // Cek apakah user masih punya hearts
+            if (currentHearts === 0) {
+                alert('❌ Hearts habis! Tidak bisa menjawab soal. Tunggu recharge atau beli hearts di shop.');
+                // Uncheck radio
+                this.checked = false;
+                return;
+            }
+            
             const quizId = this.dataset.quizId;
             const answer = this.value;
             const quizItem = this.closest('.quiz-item');
@@ -135,16 +144,25 @@
                 
                 const data = await response.json();
                 
+                // Update hearts display
+                currentHearts = data.hearts;
+                updateHeartsDisplay();
+                
                 // Tampilkan feedback
                 feedbackDiv.innerHTML = data.message;
                 feedbackDiv.classList.remove('hidden');
                 
                 if (data.is_correct) {
                     feedbackDiv.classList.add('text-green-600');
+                    if (data.reason) {
+                        feedbackDiv.innerHTML = feedbackDiv.innerHTML + '<div class="text-sm text-gray-600 mt-1">Penjelasan: ' + data.reason + '</div>';
+                    }
                 } else {
                     feedbackDiv.classList.add('text-red-600');
-                    // PERBAIKAN: menggunakan string concatenation biasa
                     feedbackDiv.innerHTML = feedbackDiv.innerHTML + '<div class="text-sm text-gray-600 mt-1">Jawaban benar: ' + data.correct_answer_text + '</div>';
+                    if (data.reason) {
+                        feedbackDiv.innerHTML = feedbackDiv.innerHTML + '<div class="text-sm text-gray-600 mt-1">Penjelasan: ' + data.reason + '</div>';
+                    }
                 }
                 
                 // Track bahwa quiz ini sudah dijawab (benar atau salah)
@@ -163,9 +181,28 @@
                 feedbackDiv.innerHTML = 'Terjadi kesalahan. Silakan coba lagi.';
                 feedbackDiv.classList.remove('hidden');
                 feedbackDiv.classList.add('text-red-600');
+                // Re-enable radio buttons jika error
+                quizItem.querySelectorAll('.quiz-radio').forEach(function(r) {
+                    r.disabled = false;
+                });
             }
         });
     });
+    
+    // Function to update hearts display
+    function updateHeartsDisplay() {
+        const heartsDisplay = document.getElementById('hearts-display');
+        if (heartsDisplay) {
+            let html = '';
+            for (let i = 1; i <= currentHearts; i++) {
+                html += '<span class="text-red-500">❤️</span>';
+            }
+            for (let i = currentHearts + 1; i <= 5; i++) {
+                html += '<span class="text-gray-300">🖤</span>';
+            }
+            heartsDisplay.innerHTML = html;
+        }
+    }
     
     // Complete lesson button
     var completeBtn = document.getElementById('complete-lesson-btn');

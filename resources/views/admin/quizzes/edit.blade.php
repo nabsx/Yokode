@@ -76,6 +76,15 @@
                 @enderror
             </div>
 
+            <!-- Reason/Explanation -->
+            <div>
+                <label for="reason" class="block text-sm font-semibold text-gray-700 mb-2">Reason/Explanation (Optional)</label>
+                <textarea name="reason" id="reason" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('reason') border-red-500 @enderror" placeholder="Explain why this is the correct answer">{{ $quiz->reason }}</textarea>
+                @error('reason')
+                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
             <!-- Statistics -->
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h3 class="font-semibold text-blue-900 mb-2">Quiz Statistics</h3>

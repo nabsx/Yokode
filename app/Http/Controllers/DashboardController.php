@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Lesson;
 use App\Models\UserProgress;
 use App\Models\UserQuest;
+use App\Models\UserAnswer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -31,7 +32,7 @@ class DashboardController extends Controller
             ->pluck('lesson_id')
             ->toArray();
         
-        // ========== HITUNG PROGRESS PER KATEGORI ==========
+        // ========== HITUNG PROGRESS PER KATEGORI + ANTI-CHEAT STATUS ==========
         foreach ($categories as $category) {
             $total = $category->lessons->count();
             $completed = $category->lessons->filter(function ($lesson) use ($completedLessons) {
@@ -41,6 +42,13 @@ class DashboardController extends Controller
             $category->progress = $total > 0 ? round(($completed / $total) * 100) : 0;
             $category->completed_count = $completed;
             $category->total_count = $total;
+            
+            // ANTI-CHEAT: Tambahkan status untuk setiap lesson
+            $category->lessons = $category->lessons->map(function ($lesson) use ($user, $completedLessons) {
+                $lesson->is_completed = in_array($lesson->id, $completedLessons);
+                $lesson->lesson_status = $this->getLessonStatus($lesson->id, $user->id);
+                return $lesson;
+            });
         }
         
         // ========== STATISTIK GLOBAL ==========
@@ -86,5 +94,39 @@ class DashboardController extends Controller
             'expToNextLevel',
             'levelProgress'
         ));
+    }
+
+    /**
+     * ANTI-CHEAT: Tentukan status lesson untuk user
+     * Return: 'available', 'has_locked_quiz', 'completed'
+     * 
+     * Note: Lesson tetap bisa dibuka meski ada quiz terkunci (untuk selesaikan).
+     * Status 'has_locked_quiz' hanya informatif, tidak mencegah akses.
+     */
+    private function getLessonStatus(int $lessonId, int $userId): string
+    {
+        // Cek apakah lesson sudah completed
+        $isCompleted = UserProgress::where('user_id', $userId)
+            ->where('lesson_id', $lessonId)
+            ->where('completed', true)
+            ->exists();
+        
+        if ($isCompleted) {
+            return 'completed';
+        }
+        
+        // Cek apakah ada quiz yang sudah dijawab salah dan viewed reason
+        $hasLockedQuiz = UserAnswer::join('quizzes', 'user_answers.quiz_id', '=', 'quizzes.id')
+            ->where('user_answers.user_id', $userId)
+            ->where('quizzes.lesson_id', $lessonId)
+            ->where('user_answers.is_correct', false)
+            ->where('user_answers.is_viewed_reason', true)
+            ->exists();
+        
+        if ($hasLockedQuiz) {
+            return 'has_locked_quiz';
+        }
+        
+        return 'available';
     }
 }

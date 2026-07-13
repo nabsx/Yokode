@@ -15,6 +15,21 @@ class QuizController extends Controller
         $user = Auth::user();
         $answer = (int)$request->input('answer'); // Cast to int for proper comparison
         
+        // ANTI-CHEAT: Cek apakah user sudah pernah menjawab salah dan melihat penjelasan
+        $existingAnswer = UserAnswer::where('user_id', $user->id)
+            ->where('quiz_id', $quiz->id)
+            ->first();
+        
+        if ($existingAnswer && !$existingAnswer->is_correct && $existingAnswer->is_viewed_reason) {
+            return response()->json([
+                'success' => false,
+                'is_correct' => false,
+                'message' => '🔒 Anda sudah melihat jawaban untuk soal ini. Tidak bisa mencoba lagi.',
+                'is_locked' => true,
+                'hearts' => $user->hearts->current_hearts
+            ]);
+        }
+        
         $isCorrect = ((int)$quiz->correct_answer === $answer);
         
         // HEARTS SYSTEM: Jika salah, kurangi heart
@@ -32,12 +47,16 @@ class QuizController extends Controller
             }
         }
         
-        // Simpan jawaban
+        // Simpan/update jawaban dengan tracking anti-cheat
+        $attemptNumber = $existingAnswer ? $existingAnswer->attempt_number + 1 : 1;
+        
         UserAnswer::updateOrCreate(
             ['user_id' => $user->id, 'quiz_id' => $quiz->id],
             [
                 'answer' => $answer,
-                'is_correct' => $isCorrect
+                'is_correct' => $isCorrect,
+                'is_viewed_reason' => !$isCorrect, // Mark as viewed reason jika jawaban salah
+                'attempt_number' => $attemptNumber
             ]
         );
         

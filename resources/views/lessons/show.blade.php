@@ -47,27 +47,74 @@
                 <h2 class="text-xl font-bold mb-4">📝 Kuis Pemahaman</h2>
                 
                 <div id="quiz-container">
-                    @foreach($quizzes as $index => $quiz)
-                        <div class="quiz-item mb-6 p-4 bg-gray-50 rounded-lg" data-quiz-id="{{ $quiz->id }}" data-correct="{{ $quiz->correct_answer }}">
-                            <p class="font-medium mb-3">{{ $index + 1 }}. {{ $quiz->question }}</p>
-                            <div class="space-y-2">
-                                @php
-                                    $labels = ['A', 'B', 'C', 'D'];
-                                @endphp
-                                @foreach($quiz->options as $key => $option)
-                                    <label class="flex items-center p-2 rounded cursor-pointer hover:bg-gray-100">
-                                        <input type="radio" 
-                                               name="quiz_{{ $quiz->id }}" 
-                                               value="{{ $key }}" 
-                                               class="quiz-radio mr-3"
-                                               data-quiz-id="{{ $quiz->id }}">
-                                        <span class="font-medium mr-2">{{ $labels[$key] }}.</span>
-                                        <span>{{ $option }}</span>
-                                    </label>
-                                @endforeach
+                    @foreach($quizzesWithStatus as $index => $quiz)
+                        {{-- Check if quiz is locked (answered wrong and viewed reason) --}}
+                        @if($quiz['status'] === 'locked')
+                            <div class="quiz-item mb-6 p-4 bg-red-50 rounded-lg border-2 border-red-300" data-quiz-id="{{ $quiz['id'] }}" data-correct="{{ $quiz['correct_answer'] }}" data-answered="true">
+                                <div class="flex items-center justify-between mb-3">
+                                    <p class="font-medium">{{ $index + 1 }}. {{ $quiz['question'] }}</p>
+                                    <span class="bg-red-200 text-red-700 px-3 py-1 rounded-full text-xs font-medium">🔒 TERKUNCI</span>
+                                </div>
+                                <div class="bg-red-100 p-3 rounded text-red-700 text-sm mb-3">
+                                    <p class="font-medium">⚠️ Soal ini sudah terkunci!</p>
+                                    <p class="text-sm mt-1">Anda sudah melihat jawaban untuk soal ini sebelumnya. Tidak bisa mencoba lagi.</p>
+                                    @if($quiz['user_answer'])
+                                        <p class="mt-2 text-xs text-gray-600">
+                                            <strong>Jawaban Anda:</strong> {{ ['A', 'B', 'C', 'D'][$quiz['user_answer']->answer] ?? 'N/A' }}<br>
+                                            <strong>Jawaban Benar:</strong> {{ ['A', 'B', 'C', 'D'][$quiz['correct_answer']] ?? 'N/A' }}
+                                        </p>
+                                        @if($quiz['reason'])
+                                            <p class="mt-2 text-xs bg-white p-2 rounded text-gray-700">
+                                                <strong>Penjelasan:</strong> {{ $quiz['reason'] }}
+                                            </p>
+                                        @endif
+                                    @endif
+                                </div>
+                                <div class="space-y-2 opacity-50 pointer-events-none">
+                                    @php
+                                        $labels = ['A', 'B', 'C', 'D'];
+                                    @endphp
+                                    @foreach($quiz['options'] as $key => $option)
+                                        <label class="flex items-center p-2 rounded bg-gray-100">
+                                            <input type="radio" 
+                                                   name="quiz_{{ $quiz['id'] }}" 
+                                                   value="{{ $key }}" 
+                                                   class="quiz-radio mr-3"
+                                                   disabled>
+                                            <span class="font-medium mr-2">{{ $labels[$key] }}.</span>
+                                            <span>{{ $option }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
                             </div>
-                            <div class="quiz-feedback mt-2 text-sm hidden"></div>
-                        </div>
+                        @else
+                            <div class="quiz-item mb-6 p-4 bg-gray-50 rounded-lg" data-quiz-id="{{ $quiz['id'] }}" data-correct="{{ $quiz['correct_answer'] }}" data-answered="{{ $quiz['user_answer'] ? 'true' : 'false' }}">
+                                <p class="font-medium mb-3">{{ $index + 1 }}. {{ $quiz['question'] }}</p>
+                                <div class="space-y-2">
+                                    @php
+                                        $labels = ['A', 'B', 'C', 'D'];
+                                    @endphp
+                                    @foreach($quiz['options'] as $key => $option)
+                                        <label class="flex items-center p-2 rounded cursor-pointer hover:bg-gray-100">
+                                            <input type="radio" 
+                                                   name="quiz_{{ $quiz['id'] }}" 
+                                                   value="{{ $key }}" 
+                                                   class="quiz-radio mr-3"
+                                                   data-quiz-id="{{ $quiz['id'] }}"
+                                                   {{ $quiz['status'] === 'completed' ? 'disabled' : '' }}>
+                                            <span class="font-medium mr-2">{{ $labels[$key] }}.</span>
+                                            <span>{{ $option }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                                <div class="quiz-feedback mt-2 text-sm hidden"></div>
+                                @if($quiz['status'] === 'completed' && $quiz['user_answer'])
+                                    <div class="mt-3 p-3 bg-green-100 rounded text-green-700 text-sm">
+                                        <p class="font-medium">✅ Sudah dijawab dengan benar</p>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
                     @endforeach
                 </div>
                 
@@ -107,8 +154,47 @@
 <script>
     // Track jawaban yang sudah dijawab
     let answeredQuizzes = new Set();
-    let totalQuizzes = {{ $quizzes->count() }};
+    
+    // ANTI-CHEAT: Hitung hanya quiz yang bisa dijawab (exclude locked ones)
+    let totalQuizzes = 0;
+    let lockedQuizzes = new Set();
+    document.querySelectorAll('.quiz-item').forEach(function(item) {
+        const quizId = item.dataset.quizId;
+        // Cek apakah ada warning "TERKUNCI" di item ini
+        const isLocked = item.querySelector('.bg-red-50') !== null || 
+                         item.querySelector('[class*="TERKUNCI"]') !== null;
+        if (isLocked) {
+            lockedQuizzes.add(quizId);
+            // Locked quiz yang sudah dijawab juga ditambah ke answered set
+            answeredQuizzes.add(quizId);
+        } else {
+            totalQuizzes++;
+            // Jika quiz sudah dijawab (dari backend), tambahkan ke answered set
+            if (item.dataset.answered === 'true') {
+                answeredQuizzes.add(quizId);
+            }
+        }
+    });
+    
     let currentHearts = {{ Auth::user()->hearts->current_hearts }};
+    
+    // Check button enable status setiap kali page load
+    function updateCompleteButtonStatus() {
+        if (answeredQuizzes.size === totalQuizzes && totalQuizzes > 0) {
+            document.getElementById('complete-lesson-btn').disabled = false;
+            if (lockedQuizzes.size > 0) {
+                document.getElementById('quiz-status').innerHTML = '✅ Semua kuis sudah dijawab! (' + lockedQuizzes.size + ' soal terkunci)';
+            } else {
+                document.getElementById('quiz-status').innerHTML = '✅ Semua kuis sudah dijawab!';
+            }
+        } else {
+            let remaining = totalQuizzes - answeredQuizzes.size;
+            document.getElementById('quiz-status').innerHTML = '📊 Progress: ' + answeredQuizzes.size + ' / ' + totalQuizzes + ' kuis dijawab (' + remaining + ' tersisa)';
+        }
+    }
+    
+    // Call on page load
+    document.addEventListener('DOMContentLoaded', updateCompleteButtonStatus);
     
     // Event listener untuk radio button
     document.querySelectorAll('.quiz-radio').forEach(function(radio) {
@@ -148,6 +234,15 @@
                 currentHearts = data.hearts;
                 updateHeartsDisplay();
                 
+                // ANTI-CHEAT: Handle locked quiz
+                if (data.is_locked) {
+                    feedbackDiv.innerHTML = data.message;
+                    feedbackDiv.classList.remove('hidden');
+                    feedbackDiv.classList.add('text-red-600');
+                    alert('⚠️ Quiz sudah terkunci! Anda tidak bisa mencoba lagi karena sudah melihat jawabannya.');
+                    return;
+                }
+                
                 // Tampilkan feedback
                 feedbackDiv.innerHTML = data.message;
                 feedbackDiv.classList.remove('hidden');
@@ -168,13 +263,8 @@
                 // Track bahwa quiz ini sudah dijawab (benar atau salah)
                 answeredQuizzes.add(quizId);
                 
-                // Cek apakah semua quiz sudah dijawab
-                if (answeredQuizzes.size === totalQuizzes) {
-                    document.getElementById('complete-lesson-btn').disabled = false;
-                    document.getElementById('quiz-status').innerHTML = '✅ Semua kuis sudah dijawab!';
-                } else {
-                    document.getElementById('quiz-status').innerHTML = '📊 Progress: ' + answeredQuizzes.size + ' / ' + totalQuizzes + ' kuis dijawab';
-                }
+                // Update button status
+                updateCompleteButtonStatus();
                 
             } catch (error) {
                 console.error('Error:', error);

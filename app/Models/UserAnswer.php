@@ -14,10 +14,16 @@ class UserAnswer extends Model
         'quiz_id',
         'answer',
         'is_correct',
+        'is_viewed_reason',
+        'attempt_number',
+        'locked_until',
     ];
 
     protected $casts = [
         'is_correct' => 'boolean',
+        'is_viewed_reason' => 'boolean',
+        'attempt_number' => 'integer',
+        'locked_until' => 'datetime',
     ];
 
     public function user()

@@ -205,6 +205,7 @@ class AdminController extends Controller
             'content' => $validated['content'],
             'category_id' => $validated['category_id'],
             'order_number' => $validated['order'] ?? 0,
+            'difficulty' => $validated['difficulty'] ?? null,
         ];
 
         Lesson::create($lessonData);
@@ -241,6 +242,7 @@ class AdminController extends Controller
             'content' => $validated['content'],
             'category_id' => $validated['category_id'],
             'order_number' => $validated['order'] ?? 0,
+            'difficulty' => $validated['difficulty'] ?? null,
         ];
 
         $lesson->update($lessonData);
@@ -288,6 +290,9 @@ class AdminController extends Controller
 
         // Generate slug from name
         $validated['slug'] = \Illuminate\Support\Str::slug($validated['name']);
+        
+        // Provide default icon if not provided
+        $validated['icon'] = $validated['icon'] ?? '😂';
 
         Category::create($validated);
 
@@ -316,6 +321,9 @@ class AdminController extends Controller
 
         // Generate slug from name
         $validated['slug'] = \Illuminate\Support\Str::slug($validated['name']);
+        
+        // Provide default icon if not provided
+        $validated['icon'] = $validated['icon'] ?? '😂';
 
         $category->update($validated);
 

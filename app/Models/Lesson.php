@@ -16,6 +16,7 @@ class Lesson extends Model
         'exp_reward',
         'is_premium',
         'order_number',
+        'difficulty',
     ];
 
     protected $casts = [

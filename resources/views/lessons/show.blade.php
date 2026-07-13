@@ -141,12 +141,14 @@
                 
                 if (data.is_correct) {
                     feedbackDiv.classList.add('text-green-600');
-                    answeredQuizzes.add(quizId);
                 } else {
                     feedbackDiv.classList.add('text-red-600');
                     // PERBAIKAN: menggunakan string concatenation biasa
                     feedbackDiv.innerHTML = feedbackDiv.innerHTML + '<div class="text-sm text-gray-600 mt-1">Jawaban benar: ' + data.correct_answer_text + '</div>';
                 }
+                
+                // Track bahwa quiz ini sudah dijawab (benar atau salah)
+                answeredQuizzes.add(quizId);
                 
                 // Cek apakah semua quiz sudah dijawab
                 if (answeredQuizzes.size === totalQuizzes) {

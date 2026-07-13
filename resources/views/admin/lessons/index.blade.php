@@ -49,6 +49,7 @@
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Title</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Category</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Difficulty</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Access</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Created</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
                     </tr>
@@ -82,6 +83,17 @@
                                     <span class="text-gray-500">-</span>
                                 @endif
                             </td>
+                            <td class="px-6 py-4">
+                                @if($lesson->is_premium)
+                                    <span class="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-semibold rounded-full">
+                                        <i class="fas fa-star mr-1"></i>Premium Only
+                                    </span>
+                                @else
+                                    <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded-full">
+                                        <i class="fas fa-globe mr-1"></i>For All
+                                    </span>
+                                @endif
+                            </td>
                             <td class="px-6 py-4 text-gray-600 text-sm">
                                 {{ $lesson->created_at->format('d M Y') }}
                             </td>
@@ -102,7 +114,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-8 text-center">
+                            <td colspan="6" class="px-6 py-8 text-center">
                                 <i class="fas fa-inbox text-4xl text-gray-300 mb-4 block"></i>
                                 <p class="text-gray-500">No lessons found</p>
                             </td>

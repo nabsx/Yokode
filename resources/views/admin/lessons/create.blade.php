@@ -112,6 +112,26 @@
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
+
+                <!-- Premium Option -->
+                <div class="md:col-span-2">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input 
+                            type="checkbox" 
+                            name="is_premium" 
+                            value="1"
+                            class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            @if(old('is_premium')) checked @endif
+                        >
+                        <span class="text-sm font-medium text-gray-700">
+                            <i class="fas fa-star text-yellow-500 mr-2"></i>Premium Lesson Only
+                        </span>
+                        <span class="text-xs text-gray-500">(Only premium users can access this lesson)</span>
+                    </label>
+                    @error('is_premium')
+                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
             <!-- Action Buttons -->

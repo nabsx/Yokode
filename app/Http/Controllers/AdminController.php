@@ -197,6 +197,7 @@ class AdminController extends Controller
             'order' => 'nullable|integer',
             'content' => 'required|string',
             'difficulty' => 'nullable|in:easy,medium,hard',
+            'is_premium' => 'nullable|boolean',
         ]);
 
         // Map validated data to model fields
@@ -206,6 +207,7 @@ class AdminController extends Controller
             'category_id' => $validated['category_id'],
             'order_number' => $validated['order'] ?? 0,
             'difficulty' => $validated['difficulty'] ?? null,
+            'is_premium' => (bool) ($validated['is_premium'] ?? false),
         ];
 
         Lesson::create($lessonData);
@@ -234,6 +236,7 @@ class AdminController extends Controller
             'order' => 'nullable|integer',
             'content' => 'required|string',
             'difficulty' => 'nullable|in:easy,medium,hard',
+            'is_premium' => 'nullable|boolean',
         ]);
 
         // Map validated data to model fields
@@ -243,6 +246,7 @@ class AdminController extends Controller
             'category_id' => $validated['category_id'],
             'order_number' => $validated['order'] ?? 0,
             'difficulty' => $validated['difficulty'] ?? null,
+            'is_premium' => (bool) ($validated['is_premium'] ?? false),
         ];
 
         $lesson->update($lessonData);

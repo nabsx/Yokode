@@ -164,8 +164,10 @@ class AdminController extends Controller
 
         if ($request->filled('search')) {
             $search = $request->get('search');
-            $query->where('title', 'like', "%$search%")
-                  ->orWhere('description', 'like', "%$search%");
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%$search%")
+                  ->orWhere('content', 'like', "%$search%");
+            });
         }
 
         $lessons = $query->orderBy('created_at', 'desc')->paginate(20);

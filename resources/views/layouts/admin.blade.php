@@ -25,8 +25,13 @@
 <body class="bg-gray-50">
     <div class="flex h-screen bg-gray-50">
         <!-- Sidebar -->
-        <aside class="w-64 bg-gradient-to-b from-blue-900 to-blue-800 text-white shadow-lg overflow-y-auto">
-            <div class="p-6">
+        <!-- FIX: aside sekarang flex flex-col agar footer (user info + logout) menempel di
+             bawah secara natural, bukan lewat position:absolute yang sebelumnya "lepas"
+             dari parent karena parent tidak relative. Ini juga yang menyebabkan garis
+             border-t di footer terlihat "menempel"/tidak hilang di posisi yang salah. -->
+        <aside class="w-64 bg-gradient-to-b from-blue-900 to-blue-800 text-white shadow-lg flex flex-col h-screen">
+            <!-- Bagian nav yang bisa discroll -->
+            <div class="flex-1 overflow-y-auto p-6">
                 <div class="flex items-center gap-3 mb-8">
                     <div class="flex-shrink-0">
                         <div class="flex items-center justify-center h-10 w-10 rounded-lg bg-blue-600">
@@ -100,8 +105,9 @@
                 </nav>
             </div>
 
-            <!-- User Info at Bottom -->
-            <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-blue-700">
+            <!-- User Info + Logout: sekarang bagian normal dari flex-col, bukan absolute.
+                 flex-shrink-0 supaya tidak ikut mengecil saat nav di atasnya panjang. -->
+            <div class="flex-shrink-0 p-6 border-t border-blue-700">
                 <div class="flex items-center gap-3 mb-4">
                     <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
                         <i class="fas fa-user text-white"></i>

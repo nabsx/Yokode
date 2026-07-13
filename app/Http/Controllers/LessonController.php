@@ -30,7 +30,22 @@ class LessonController extends Controller
         // Ambil semua quiz untuk lesson ini
         $quizzes = $lesson->quizzes;
         
-        return view('lessons.show', compact('lesson', 'quizzes', 'isCompleted'));
+        // ANTI-CHEAT: Tambahkan status untuk setiap quiz
+        $quizzesWithStatus = $quizzes->map(function($quiz) use ($user) {
+            return [
+                'id' => $quiz->id,
+                'question' => $quiz->question,
+                'options' => $quiz->options,
+                'correct_answer' => $quiz->correct_answer,
+                'points' => $quiz->points,
+                'reason' => $quiz->reason,
+                'can_retry' => $quiz->canRetry($user->id),
+                'status' => $quiz->getStatusForUser($user->id),
+                'user_answer' => $quiz->userAnswers()->where('user_id', $user->id)->first(),
+            ];
+        });
+        
+        return view('lessons.show', compact('lesson', 'quizzes', 'quizzesWithStatus', 'isCompleted'));
     }
     
     public function complete(int $id)

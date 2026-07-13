@@ -229,16 +229,19 @@
                     @foreach($category->lessons as $lesson)
                         @php
                             $isCompleted = in_array($lesson->id, $completedLessons);
-                            $isLocked = $lesson->is_premium && !Auth::user()->is_premium_active;
+                            $isPremiumLocked = $lesson->is_premium && !Auth::user()->is_premium_active;
+                            $isAntiCheatLocked = $lesson->lesson_status === 'locked';
+                            $isAnyLocked = $isPremiumLocked || $isAntiCheatLocked;
                         @endphp
                         
-                        <a href="{{ route('lesson.show', $lesson->id) }}" 
-                           class="block border rounded-lg p-3 hover:shadow-md transition {{ $isCompleted ? 'bg-green-50 border-green-300' : ($isLocked ? 'bg-gray-50 border-gray-200 opacity-70' : 'hover:bg-gray-50') }}">
+                        <a href="{{ $isAnyLocked ? '#' : route('lesson.show', $lesson->id) }}" 
+                           onclick="{{ $isAnyLocked ? 'return false;' : '' }}"
+                           class="block border rounded-lg p-3 hover:shadow-md transition cursor-{{ $isAnyLocked ? 'not-allowed' : 'pointer' }} {{ $isCompleted ? 'bg-green-50 border-green-300' : ($isAnyLocked ? 'bg-red-50 border-red-300 opacity-70' : 'hover:bg-gray-50') }}">
                             <div class="flex items-center justify-between">
                                 <div class="flex-1">
                                     <div class="flex items-center gap-2 flex-wrap">
                                         <span class="text-gray-400 text-xs">#{{ $lesson->order_number }}</span>
-                                        <span class="font-medium {{ $isCompleted ? 'text-green-700' : ($isLocked ? 'text-gray-400' : '') }}">
+                                        <span class="font-medium {{ $isCompleted ? 'text-green-700' : ($isAnyLocked ? 'text-red-600' : '') }}">
                                             {{ $lesson->title }}
                                         </span>
                                         @if($lesson->is_premium)
@@ -247,17 +250,22 @@
                                         @if($isCompleted)
                                             <span class="text-xs bg-green-200 text-green-800 px-2 py-0.5 rounded">✓ Selesai</span>
                                         @endif
-                                        @if($isLocked)
-                                            <span class="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded">🔒 Terkunci</span>
+                                        @if($isAntiCheatLocked)
+                                            <span class="text-xs bg-red-200 text-red-800 px-2 py-0.5 rounded font-medium">🔒 Anti-Curang Aktif</span>
+                                        @elseif($isPremiumLocked)
+                                            <span class="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded">🔒 Premium Only</span>
                                         @endif
                                     </div>
                                     <p class="text-gray-500 text-xs mt-1">⭐ +{{ $lesson->exp_reward }} EXP</p>
+                                    @if($isAntiCheatLocked)
+                                        <p class="text-red-600 text-xs font-medium mt-2">⚠️ Modul terkunci karena ada soal yang sudah dijawab salah. Hubungi admin jika ingin membuka kunci.</p>
+                                    @endif
                                 </div>
                                 <div>
                                     @if($isCompleted)
                                         <span class="text-green-600 text-xl">✓</span>
-                                    @elseif($isLocked)
-                                        <span class="text-gray-400">🔒</span>
+                                    @elseif($isAnyLocked)
+                                        <span class="text-red-500">🔒</span>
                                     @else
                                         <span class="text-blue-600 text-sm font-medium">Mulai →</span>
                                     @endif

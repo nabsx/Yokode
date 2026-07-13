@@ -47,27 +47,74 @@
                 <h2 class="text-xl font-bold mb-4">📝 Kuis Pemahaman</h2>
                 
                 <div id="quiz-container">
-                    @foreach($quizzes as $index => $quiz)
-                        <div class="quiz-item mb-6 p-4 bg-gray-50 rounded-lg" data-quiz-id="{{ $quiz->id }}" data-correct="{{ $quiz->correct_answer }}">
-                            <p class="font-medium mb-3">{{ $index + 1 }}. {{ $quiz->question }}</p>
-                            <div class="space-y-2">
-                                @php
-                                    $labels = ['A', 'B', 'C', 'D'];
-                                @endphp
-                                @foreach($quiz->options as $key => $option)
-                                    <label class="flex items-center p-2 rounded cursor-pointer hover:bg-gray-100">
-                                        <input type="radio" 
-                                               name="quiz_{{ $quiz->id }}" 
-                                               value="{{ $key }}" 
-                                               class="quiz-radio mr-3"
-                                               data-quiz-id="{{ $quiz->id }}">
-                                        <span class="font-medium mr-2">{{ $labels[$key] }}.</span>
-                                        <span>{{ $option }}</span>
-                                    </label>
-                                @endforeach
+                    @foreach($quizzesWithStatus as $index => $quiz)
+                        {{-- Check if quiz is locked (answered wrong and viewed reason) --}}
+                        @if($quiz['status'] === 'locked')
+                            <div class="quiz-item mb-6 p-4 bg-red-50 rounded-lg border-2 border-red-300" data-quiz-id="{{ $quiz['id'] }}" data-correct="{{ $quiz['correct_answer'] }}">
+                                <div class="flex items-center justify-between mb-3">
+                                    <p class="font-medium">{{ $index + 1 }}. {{ $quiz['question'] }}</p>
+                                    <span class="bg-red-200 text-red-700 px-3 py-1 rounded-full text-xs font-medium">🔒 TERKUNCI</span>
+                                </div>
+                                <div class="bg-red-100 p-3 rounded text-red-700 text-sm mb-3">
+                                    <p class="font-medium">⚠️ Soal ini sudah terkunci!</p>
+                                    <p class="text-sm mt-1">Anda sudah melihat jawaban untuk soal ini sebelumnya. Tidak bisa mencoba lagi.</p>
+                                    @if($quiz['user_answer'])
+                                        <p class="mt-2 text-xs text-gray-600">
+                                            <strong>Jawaban Anda:</strong> {{ ['A', 'B', 'C', 'D'][$quiz['user_answer']->answer] ?? 'N/A' }}<br>
+                                            <strong>Jawaban Benar:</strong> {{ ['A', 'B', 'C', 'D'][$quiz['correct_answer']] ?? 'N/A' }}
+                                        </p>
+                                        @if($quiz['reason'])
+                                            <p class="mt-2 text-xs bg-white p-2 rounded text-gray-700">
+                                                <strong>Penjelasan:</strong> {{ $quiz['reason'] }}
+                                            </p>
+                                        @endif
+                                    @endif
+                                </div>
+                                <div class="space-y-2 opacity-50 pointer-events-none">
+                                    @php
+                                        $labels = ['A', 'B', 'C', 'D'];
+                                    @endphp
+                                    @foreach($quiz['options'] as $key => $option)
+                                        <label class="flex items-center p-2 rounded bg-gray-100">
+                                            <input type="radio" 
+                                                   name="quiz_{{ $quiz['id'] }}" 
+                                                   value="{{ $key }}" 
+                                                   class="quiz-radio mr-3"
+                                                   disabled>
+                                            <span class="font-medium mr-2">{{ $labels[$key] }}.</span>
+                                            <span>{{ $option }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
                             </div>
-                            <div class="quiz-feedback mt-2 text-sm hidden"></div>
-                        </div>
+                        @else
+                            <div class="quiz-item mb-6 p-4 bg-gray-50 rounded-lg" data-quiz-id="{{ $quiz['id'] }}" data-correct="{{ $quiz['correct_answer'] }}">
+                                <p class="font-medium mb-3">{{ $index + 1 }}. {{ $quiz['question'] }}</p>
+                                <div class="space-y-2">
+                                    @php
+                                        $labels = ['A', 'B', 'C', 'D'];
+                                    @endphp
+                                    @foreach($quiz['options'] as $key => $option)
+                                        <label class="flex items-center p-2 rounded cursor-pointer hover:bg-gray-100">
+                                            <input type="radio" 
+                                                   name="quiz_{{ $quiz['id'] }}" 
+                                                   value="{{ $key }}" 
+                                                   class="quiz-radio mr-3"
+                                                   data-quiz-id="{{ $quiz['id'] }}"
+                                                   {{ $quiz['status'] === 'completed' ? 'disabled' : '' }}>
+                                            <span class="font-medium mr-2">{{ $labels[$key] }}.</span>
+                                            <span>{{ $option }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                                <div class="quiz-feedback mt-2 text-sm hidden"></div>
+                                @if($quiz['status'] === 'completed' && $quiz['user_answer'])
+                                    <div class="mt-3 p-3 bg-green-100 rounded text-green-700 text-sm">
+                                        <p class="font-medium">✅ Sudah dijawab dengan benar</p>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
                     @endforeach
                 </div>
                 
@@ -147,6 +194,15 @@
                 // Update hearts display
                 currentHearts = data.hearts;
                 updateHeartsDisplay();
+                
+                // ANTI-CHEAT: Handle locked quiz
+                if (data.is_locked) {
+                    feedbackDiv.innerHTML = data.message;
+                    feedbackDiv.classList.remove('hidden');
+                    feedbackDiv.classList.add('text-red-600');
+                    alert('⚠️ Quiz sudah terkunci! Anda tidak bisa mencoba lagi karena sudah melihat jawabannya.');
+                    return;
+                }
                 
                 // Tampilkan feedback
                 feedbackDiv.innerHTML = data.message;

@@ -65,4 +65,58 @@ class Quiz extends Model
         
         return $formatted;
     }
+
+    /**
+     * Cek apakah user bisa retry quiz ini
+     * User tidak bisa retry jika sudah pernah menjawab salah dan sudah melihat penjelasan
+     */
+    public function canRetry($userId)
+    {
+        $userAnswer = $this->userAnswers()
+            ->where('user_id', $userId)
+            ->first();
+
+        // Jika belum pernah dijawab, bisa di-attempt
+        if (!$userAnswer) {
+            return true;
+        }
+
+        // Jika pernah dijawab benar, bisa lihat tapi tidak perlu retry
+        if ($userAnswer->is_correct) {
+            return false;
+        }
+
+        // Jika pernah dijawab salah dan sudah melihat reason, tidak bisa retry
+        if (!$userAnswer->is_correct && $userAnswer->is_viewed_reason) {
+            return false;
+        }
+
+        // Jika pernah dijawab salah tapi belum melihat reason, bisa retry
+        return true;
+    }
+
+    /**
+     * Dapatkan status quiz untuk user tertentu
+     * Return: 'available', 'locked', 'completed'
+     */
+    public function getStatusForUser($userId)
+    {
+        $userAnswer = $this->userAnswers()
+            ->where('user_id', $userId)
+            ->first();
+
+        if (!$userAnswer) {
+            return 'available';
+        }
+
+        if ($userAnswer->is_correct) {
+            return 'completed';
+        }
+
+        if ($userAnswer->is_viewed_reason) {
+            return 'locked';
+        }
+
+        return 'available';
+    }
 }

@@ -11,6 +11,7 @@ use App\Models\ShopItem;
 use App\Models\DailyQuest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -198,6 +199,7 @@ class AdminController extends Controller
             'content' => 'required|string',
             'difficulty' => 'nullable|in:easy,medium,hard',
             'is_premium' => 'nullable|boolean',
+            'banner_image' => 'nullable|image|mimes:jpeg,png,webp|max:5120',
         ]);
 
         // Map validated data to model fields
@@ -209,6 +211,13 @@ class AdminController extends Controller
             'difficulty' => $validated['difficulty'] ?? null,
             'is_premium' => (bool) ($validated['is_premium'] ?? false),
         ];
+
+        // Handle banner image upload
+        if ($request->hasFile('banner_image')) {
+            $file = $request->file('banner_image');
+            $path = $file->store('lessons', 'public');
+            $lessonData['banner_image'] = Storage::url($path);
+        }
 
         Lesson::create($lessonData);
 
@@ -237,6 +246,8 @@ class AdminController extends Controller
             'content' => 'required|string',
             'difficulty' => 'nullable|in:easy,medium,hard',
             'is_premium' => 'nullable|boolean',
+            'banner_image' => 'nullable|image|mimes:jpeg,png,webp|max:5120',
+            'remove_banner_image' => 'nullable|boolean',
         ]);
 
         // Map validated data to model fields
@@ -248,6 +259,18 @@ class AdminController extends Controller
             'difficulty' => $validated['difficulty'] ?? null,
             'is_premium' => (bool) ($validated['is_premium'] ?? false),
         ];
+
+        // Handle banner image deletion
+        if ($request->input('remove_banner_image') == 1) {
+            $lessonData['banner_image'] = null;
+        }
+
+        // Handle banner image upload
+        if ($request->hasFile('banner_image')) {
+            $file = $request->file('banner_image');
+            $path = $file->store('lessons', 'public');
+            $lessonData['banner_image'] = Storage::url($path);
+        }
 
         $lesson->update($lessonData);
 

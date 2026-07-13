@@ -27,19 +27,27 @@
         </div>
     </div>
 </div>
-    <div class="bg-white rounded-lg shadow p-6">
-        <!-- Header -->
-        <div class="border-b pb-4 mb-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <span class="text-gray-500 text-sm">Modul #{{ $lesson->order_number }}</span>
-                    <h1 class="text-2xl font-bold mt-1">{{ $lesson->title }}</h1>
-                </div>
-                @if($isCompleted)
-                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">✓ Selesai</span>
-                @endif
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <!-- Banner Image -->
+        @if($lesson->banner_image)
+            <div class="w-full h-64 overflow-hidden bg-gray-200">
+                <img src="{{ $lesson->banner_image }}" alt="{{ $lesson->title }}" class="w-full h-full object-cover">
             </div>
-        </div>
+        @endif
+
+        <div class="p-6">
+            <!-- Header -->
+            <div class="border-b pb-4 mb-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <span class="text-gray-500 text-sm">Modul #{{ $lesson->order_number }}</span>
+                        <h1 class="text-2xl font-bold mt-1">{{ $lesson->title }}</h1>
+                    </div>
+                    @if($isCompleted)
+                        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">✓ Selesai</span>
+                    @endif
+                </div>
+            </div>
         
         <!-- Content -->
         <div class="prose max-w-none mb-8">
@@ -153,6 +161,7 @@
                 </button>
             </div>
         @endif
+        </div>
     </div>
 </div>
 

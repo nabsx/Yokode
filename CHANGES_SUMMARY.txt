@@ -1,0 +1,76 @@
+=============================================================
+LESSON PHOTO UPLOAD FEATURE - IMPLEMENTATION SUMMARY
+=============================================================
+
+MODIFIED FILES:
+===============
+
+1. database/migrations/2026_07_13_150000_add_banner_image_to_lessons_table.php
+   - NEW FILE
+   - Adds 'banner_image' column to lessons table
+   - Type: string, nullable
+
+2. app/Models/Lesson.php
+   - Added 'banner_image' to $fillable array
+
+3. app/Http/Controllers/AdminController.php
+   - Added Storage import
+   - Updated lessonsStore() method with image upload handling
+   - Updated lessonsUpdate() method with image upload/deletion handling
+   - Image validation: jpg, png, webp, max 5MB
+   - Stores images in: storage/app/public/lessons/
+
+4. resources/views/admin/lessons/create.blade.php
+   - Added enctype="multipart/form-data" to form
+   - Added banner image upload section with:
+     * Drag & drop area
+     * File input (hidden)
+     * Image preview functionality
+     * Remove button
+     * File type/size validation
+   - Added JavaScript for image handling
+
+5. resources/views/admin/lessons/edit.blade.php
+   - Added enctype="multipart/form-data" to form
+   - Added banner image upload section with:
+     * Drag & drop area
+     * Current image display
+     * New image preview
+     * Remove current image button
+     * Replace image capability
+     * File type/size validation
+   - Added JavaScript for image handling
+
+6. resources/views/lessons/show.blade.php
+   - Added banner image display at top of lesson
+   - Full-width image (height: 16rem / 256px)
+   - Only shows if image exists
+   - Image positioned before title and content
+
+KEY FEATURES:
+=============
+✓ Admin can upload images when creating lessons
+✓ Admin can add/update/remove images when editing lessons
+✓ Users see banner images at top of lessons
+✓ Drag & drop image upload
+✓ Real-time image preview
+✓ File validation (type & size)
+✓ Backward compatible (lessons without images still work)
+✓ Responsive design
+
+DEPLOYMENT STEPS:
+=================
+1. Deploy code to production
+2. Run: php artisan migrate
+3. Run: php artisan storage:link (if needed)
+4. Verify storage/app/public/lessons/ directory exists
+5. Test image upload functionality
+
+FILES TO DEPLOY:
+================
+- database/migrations/2026_07_13_150000_add_banner_image_to_lessons_table.php
+- app/Models/Lesson.php
+- app/Http/Controllers/AdminController.php
+- resources/views/admin/lessons/create.blade.php
+- resources/views/admin/lessons/edit.blade.php
+- resources/views/lessons/show.blade.php

@@ -17,6 +17,7 @@ class Lesson extends Model
         'is_premium',
         'order_number',
         'difficulty',
+        'banner_image',
     ];
 
     protected $casts = [

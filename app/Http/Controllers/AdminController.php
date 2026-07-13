@@ -546,8 +546,30 @@ class AdminController extends Controller
 
         $template->update($validated);
 
+        // Auto-update existing daily_quests for this day with new template values
+        // This ensures user dashboard shows updated rewards immediately
+        $today = \Carbon\Carbon::now()->toDateString();
+        $questsToUpdate = DailyQuest::where('date', $today)
+            ->where('day_of_week', $template->day_of_week)
+            ->orWhere(function ($query) use ($template, $today) {
+                $query->where('date', $today)
+                      ->where('day_of_week', $template->day_of_week);
+            });
+
+        // Try to find by matching today's quest with the template's day
+        if ($template->day_of_week == \Carbon\Carbon::now()->dayOfWeek) {
+            DailyQuest::where('date', $today)->update([
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'type' => $validated['type'],
+                'target' => $validated['target'],
+                'reward_exp' => $validated['reward_exp'],
+                'reward_coins' => $validated['reward_coins'],
+            ]);
+        }
+
         return redirect()->route('admin.quest-templates.index')
-                        ->with('success', 'Daily quest template updated successfully.');
+                        ->with('success', 'Daily quest template updated successfully! Dashboard will refresh to show new rewards.');
     }
 
     /**

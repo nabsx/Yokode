@@ -205,6 +205,7 @@ class AdminController extends Controller
             'content' => $validated['content'],
             'category_id' => $validated['category_id'],
             'order_number' => $validated['order'] ?? 0,
+            'difficulty' => $validated['difficulty'] ?? null,
         ];
 
         Lesson::create($lessonData);
@@ -241,6 +242,7 @@ class AdminController extends Controller
             'content' => $validated['content'],
             'category_id' => $validated['category_id'],
             'order_number' => $validated['order'] ?? 0,
+            'difficulty' => $validated['difficulty'] ?? null,
         ];
 
         $lesson->update($lessonData);

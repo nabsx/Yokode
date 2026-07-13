@@ -98,7 +98,10 @@ class DashboardController extends Controller
 
     /**
      * ANTI-CHEAT: Tentukan status lesson untuk user
-     * Return: 'available', 'locked', 'completed'
+     * Return: 'available', 'has_locked_quiz', 'completed'
+     * 
+     * Note: Lesson tetap bisa dibuka meski ada quiz terkunci (untuk selesaikan).
+     * Status 'has_locked_quiz' hanya informatif, tidak mencegah akses.
      */
     private function getLessonStatus(int $lessonId, int $userId): string
     {
@@ -121,7 +124,7 @@ class DashboardController extends Controller
             ->exists();
         
         if ($hasLockedQuiz) {
-            return 'locked';
+            return 'has_locked_quiz';
         }
         
         return 'available';

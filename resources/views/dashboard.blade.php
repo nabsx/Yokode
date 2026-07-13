@@ -230,18 +230,17 @@
                         @php
                             $isCompleted = in_array($lesson->id, $completedLessons);
                             $isPremiumLocked = $lesson->is_premium && !Auth::user()->is_premium_active;
-                            $isAntiCheatLocked = $lesson->lesson_status === 'locked';
-                            $isAnyLocked = $isPremiumLocked || $isAntiCheatLocked;
+                            $hasLockedQuiz = $lesson->lesson_status === 'has_locked_quiz';
                         @endphp
                         
-                        <a href="{{ $isAnyLocked ? '#' : route('lesson.show', $lesson->id) }}" 
-                           onclick="{{ $isAnyLocked ? 'return false;' : '' }}"
-                           class="block border rounded-lg p-3 hover:shadow-md transition cursor-{{ $isAnyLocked ? 'not-allowed' : 'pointer' }} {{ $isCompleted ? 'bg-green-50 border-green-300' : ($isAnyLocked ? 'bg-red-50 border-red-300 opacity-70' : 'hover:bg-gray-50') }}">
+                        <a href="{{ $isPremiumLocked ? '#' : route('lesson.show', $lesson->id) }}" 
+                           onclick="{{ $isPremiumLocked ? 'return false;' : '' }}"
+                           class="block border rounded-lg p-3 hover:shadow-md transition cursor-{{ $isPremiumLocked ? 'not-allowed' : 'pointer' }} {{ $isCompleted ? 'bg-green-50 border-green-300' : ($isPremiumLocked ? 'bg-gray-50 border-gray-200 opacity-70' : 'hover:bg-gray-50') }}">
                             <div class="flex items-center justify-between">
                                 <div class="flex-1">
                                     <div class="flex items-center gap-2 flex-wrap">
                                         <span class="text-gray-400 text-xs">#{{ $lesson->order_number }}</span>
-                                        <span class="font-medium {{ $isCompleted ? 'text-green-700' : ($isAnyLocked ? 'text-red-600' : '') }}">
+                                        <span class="font-medium {{ $isCompleted ? 'text-green-700' : '' }}">
                                             {{ $lesson->title }}
                                         </span>
                                         @if($lesson->is_premium)
@@ -250,22 +249,22 @@
                                         @if($isCompleted)
                                             <span class="text-xs bg-green-200 text-green-800 px-2 py-0.5 rounded">✓ Selesai</span>
                                         @endif
-                                        @if($isAntiCheatLocked)
-                                            <span class="text-xs bg-red-200 text-red-800 px-2 py-0.5 rounded font-medium">🔒 Anti-Curang Aktif</span>
+                                        @if($hasLockedQuiz)
+                                            <span class="text-xs bg-orange-200 text-orange-800 px-2 py-0.5 rounded font-medium">⚠️ Ada Soal Terkunci</span>
                                         @elseif($isPremiumLocked)
                                             <span class="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded">🔒 Premium Only</span>
                                         @endif
                                     </div>
                                     <p class="text-gray-500 text-xs mt-1">⭐ +{{ $lesson->exp_reward }} EXP</p>
-                                    @if($isAntiCheatLocked)
-                                        <p class="text-red-600 text-xs font-medium mt-2">⚠️ Modul terkunci karena ada soal yang sudah dijawab salah. Hubungi admin jika ingin membuka kunci.</p>
+                                    @if($hasLockedQuiz)
+                                        <p class="text-orange-600 text-xs font-medium mt-2">💡 Beberapa soal sudah terkunci karena pernah dijawab salah. Anda masih bisa selesaikan modul ini.</p>
                                     @endif
                                 </div>
                                 <div>
                                     @if($isCompleted)
                                         <span class="text-green-600 text-xl">✓</span>
-                                    @elseif($isAnyLocked)
-                                        <span class="text-red-500">🔒</span>
+                                    @elseif($isPremiumLocked)
+                                        <span class="text-gray-400">🔒</span>
                                     @else
                                         <span class="text-blue-600 text-sm font-medium">Mulai →</span>
                                     @endif

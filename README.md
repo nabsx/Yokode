@@ -1,59 +1,260 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Yokode
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A modern Laravel 12 application built with elegant, expressive syntax. Yokode provides a solid foundation for building robust web applications with ease and flexibility.
 
-## About Laravel
+## About
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Yokode is a full-featured Laravel application that simplifies web development by handling common tasks efficiently:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+-   **Expressive Routing** - Simple, intuitive route definitions for clean API design
+-   **Powerful ORM** - Eloquent provides an intuitive interface for database operations
+-   **Authentication & Authorization** - Built-in tools for managing user access and permissions
+-   **Database Migrations** - Version control for your database schema
+-   **Job Queues** - Background job processing for long-running tasks
+-   **Real-time Broadcasting** - Event-driven architecture for real-time features
+-   **Testing Framework** - Comprehensive testing utilities with PHPUnit
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Tech Stack
 
-## Learning Laravel
+-   **PHP 8.2+** - Modern PHP with typed properties and attributes
+-   **Laravel 12** - Latest Laravel framework with modern features
+-   **Vite** - Next-generation frontend build tool
+-   **Tailwind CSS** - Utility-first CSS framework
+-   **Bootstrap 5** - Responsive UI components
+-   **SQLite** - Lightweight database for local development
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Requirements
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+-   PHP 8.2 or higher
+-   Composer
+-   Node.js 18+ and npm
+-   Git
 
-## Laravel Sponsors
+## Installation
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Quick Setup
 
-### Premium Partners
+Clone the repository and run the setup script:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```bash
+git clone https://github.com/nabsx/Yokode.git
+cd Yokode
+composer run-script setup
+```
+
+This will:
+
+1. Install PHP dependencies via Composer
+2. Copy `.env.example` to `.env`
+3. Generate application key
+4. Run database migrations
+5. Install Node.js dependencies
+6. Build frontend assets
+
+### Manual Setup
+
+If you prefer manual setup:
+
+```bash
+# Install PHP dependencies
+composer install
+
+# Copy environment file
+cp .env.example .env
+
+# Generate application key
+php artisan key:generate
+
+# Run migrations
+php artisan migrate
+
+# Install Node.js dependencies
+npm install
+
+# Build frontend assets
+npm run build
+```
+
+## Development
+
+### Starting the Development Server
+
+Run all development services concurrently:
+
+```bash
+composer run-script dev
+```
+
+This starts:
+
+-   Laravel development server (port 8000)
+-   Queue listener for background jobs
+-   Pail for real-time logs
+-   Vite development server for frontend
+
+Or run services individually:
+
+```bash
+# Laravel server
+php artisan serve
+
+# Queue listener
+php artisan queue:listen
+
+# Pail logs
+php artisan pail
+
+# Vite frontend dev
+npm run dev
+```
+
+### Available npm Scripts
+
+```bash
+npm run dev      # Start Vite development server
+npm run build    # Build frontend assets for production
+```
+
+### Available Artisan Commands
+
+```bash
+php artisan migrate           # Run database migrations
+php artisan tinker            # Interactive shell
+php artisan test              # Run test suite
+php artisan make:controller   # Generate controller
+php artisan make:model        # Generate model
+php artisan make:migration    # Generate migration
+```
+
+## Testing
+
+Run the test suite:
+
+```bash
+composer run-script test
+```
+
+Tests are located in the `tests/` directory and use PHPUnit as the testing framework.
+
+## Database
+
+### Configuration
+
+Database settings are configured in `.env`:
+
+```env
+DB_CONNECTION=sqlite
+DB_DATABASE=database/database.sqlite
+```
+
+For other database systems, update these values and install the appropriate drivers.
+
+### Migrations
+
+Create and run migrations:
+
+```bash
+# Create a new migration
+php artisan make:migration create_table_name
+
+# Run all pending migrations
+php artisan migrate
+
+# Rollback last migration
+php artisan migrate:rollback
+
+# Refresh all migrations
+php artisan migrate:refresh
+```
+
+## Project Structure
+
+```
+├── app/                   # Application code
+│   ├── Http/             # Controllers, middleware, requests
+│   ├── Models/           # Eloquent models
+│   └── Services/         # Business logic
+├── bootstrap/            # Framework bootstrap files
+├── config/               # Configuration files
+├── database/
+│   ├── migrations/       # Database migrations
+│   ├── seeders/          # Data seeders
+│   └── factories/        # Model factories
+├── public/               # Publicly accessible files
+├── resources/
+│   ├── views/            # Blade templates
+│   ├── css/              # Stylesheets
+│   └── js/               # JavaScript files
+├── routes/               # Route definitions
+├── storage/              # Logs, uploads, cache
+├── tests/                # Test files
+└── config files          # .env, composer.json, vite.config.js
+```
+
+## Environment Variables
+
+Copy `.env.example` to `.env` and configure as needed:
+
+```env
+APP_NAME=Yokode
+APP_ENV=local
+APP_KEY=base64:...
+APP_DEBUG=true
+APP_URL=http://localhost
+
+DB_CONNECTION=sqlite
+DB_DATABASE=database/database.sqlite
+
+MAIL_MAILER=log
+CACHE_STORE=database
+SESSION_DRIVER=database
+QUEUE_CONNECTION=database
+```
+
+## Deployment
+
+### Vercel Deployment
+
+This project is configured for Vercel deployment:
+
+1. Push to GitHub
+2. Connect repository to Vercel
+3. Vercel will automatically detect the Laravel application
+4. Configure environment variables in Vercel dashboard
+5. Deploy with a single click
+
+For Laravel on Vercel, ensure:
+
+-   PHP version is compatible (8.2+)
+-   Database is configured (e.g., Neon PostgreSQL, Supabase)
+-   Environment variables are set in Vercel dashboard
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Contributions are welcome! To contribute:
 
-## Code of Conduct
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Please ensure tests pass and code follows Laravel conventions.
 
-## Security Vulnerabilities
+## Security
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+If you discover a security vulnerability, please email the maintainers rather than using the issue tracker. All security vulnerabilities will be promptly addressed.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-sourced software licensed under the [MIT license](LICENSE).
+
+## Support
+
+-   [Laravel Documentation](https://laravel.com/docs)
+-   [Laravel Community](https://laravel.com/community)
+-   [Issues](https://github.com/nabsx/Yokode/issues)
+
+---
+
+Made with ❤️ by the Yokode team
